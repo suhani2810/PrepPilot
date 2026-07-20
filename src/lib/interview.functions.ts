@@ -271,7 +271,8 @@ Return JSON: {
       interview_message_id: userMsg.id, interview_id: data.interviewId,
       technical_accuracy: e.technicalAccuracy, clarity: e.clarity, relevance: e.relevance,
       problem_solving: e.problemSolving, communication: e.communication, overall_score: e.overallScore,
-      strengths: e.strengths ?? [], weaknesses: e.weaknesses ?? [], missing_concepts: e.missingConcepts ?? [],
+      strengths: asJson(e.strengths ?? []), weaknesses: asJson(e.weaknesses ?? []),
+      missing_concepts: asJson(e.missingConcepts ?? []),
       ideal_answer: e.idealAnswer ?? "", recommended_follow_up: e.recommendedFollowUp ?? "",
     });
 
@@ -282,7 +283,7 @@ Return JSON: {
     const topicsCovered = Array.from(new Set([...(ctx.topicsCovered ?? []), combined.next.topic]));
 
     await supabase.from("interviews").update({
-      context: { currentDifficulty: combined.next.difficulty, topicsCovered, topicScores },
+      context: asJson({ currentDifficulty: combined.next.difficulty, topicsCovered, topicScores }),
     }).eq("id", data.interviewId);
 
     await supabase.from("interview_messages").insert({
@@ -337,7 +338,7 @@ export const endInterview = createServerFn({ method: "POST" })
 
     await supabase.from("interviews").update({
       status: "completed", overall_score: overall, readiness_score: readiness,
-      final_report: report, completed_at: new Date().toISOString(),
+      final_report: asJson(report), completed_at: new Date().toISOString(),
     }).eq("id", data.interviewId);
 
     // Update profile readiness (rolling avg)
