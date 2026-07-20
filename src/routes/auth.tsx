@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ function AuthPage() {
     });
   }, [navigate]);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedPassword = password.trim();
