@@ -1,4 +1,5 @@
-import { createFileRoute, useServerFn } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { parseResume, updateCandidateProfile } from "@/lib/interview.functions";
@@ -9,15 +10,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Upload, FileText, Sparkles } from "lucide-react";
-import { useServerFn as useSFn } from "@tanstack/react-start";
-
-export const Route = createFileRoute("/_authenticated/resume")({
-  head: () => ({ meta: [{ title: "Resume — PrepPilot" }] }),
-  component: ResumePage,
-});
-
-// Use react-start's useServerFn (the router one is re-exported; keep the alias explicit)
-void useServerFn;
 
 type Parsed = {
   summary?: string;
@@ -35,8 +27,8 @@ function ResumePage() {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
 
-  const parseFn = useSFn(parseResume);
-  const updateFn = useSFn(updateCandidateProfile);
+  const parseFn = useServerFn(parseResume);
+  const updateFn = useServerFn(updateCandidateProfile);
 
   const load = async () => {
     const { data: u } = await supabase.auth.getUser();

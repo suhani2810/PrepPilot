@@ -3,5 +3,8 @@ export async function extractPdfText(bytes: Uint8Array): Promise<string> {
   const { extractText, getDocumentProxy } = await import("unpdf");
   const doc = await getDocumentProxy(bytes);
   const { text } = await extractText(doc, { mergePages: true });
-  return typeof text === "string" ? text : Array.isArray(text) ? text.join("\n\n") : "";
+  const t = text as unknown;
+  if (typeof t === "string") return t;
+  if (Array.isArray(t)) return t.join("\n\n");
+  return "";
 }
