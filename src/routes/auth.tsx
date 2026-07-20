@@ -25,12 +25,14 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     setMode(search.mode ?? "signin");
   }, [search.mode]);
 
   useEffect(() => {
+    setHydrated(true);
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) navigate({ to: "/dashboard", replace: true });
     });
@@ -101,29 +103,30 @@ function AuthPage() {
             {mode === "signup" && (
               <div>
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Lovelace" />
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Lovelace" disabled={!hydrated || busy} />
               </div>
             )}
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={!hydrated || busy} />
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+              <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} disabled={!hydrated || busy} />
             </div>
-            <Button type="submit" disabled={busy} className="w-full bg-gradient-primary text-white hover:opacity-90">
-              {busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
+            <Button type="submit" disabled={!hydrated || busy} className="w-full bg-gradient-primary text-white hover:opacity-90">
+              {!hydrated ? "Loading…" : busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
             </Button>
           </form>
           <button
             type="button"
+            disabled={!hydrated || busy}
             onClick={() => {
               const nextMode = mode === "signup" ? "signin" : "signup";
               setMode(nextMode);
               navigate({ to: "/auth", search: { mode: nextMode }, replace: true });
             }}
-            className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-foreground"
+            className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
           >
             {mode === "signup" ? "Have an account? Sign in" : "New to PrepPilot? Create an account"}
           </button>
