@@ -82,22 +82,23 @@ export const parseResume = createServerFn({ method: "POST" })
         potentialQuestionAreas: [],
       },
     });
+    const parsedJson = parsed as unknown as import("@/integrations/supabase/types").Json;
 
     const { data: existing } = await supabase
       .from("candidate_profiles").select("id").eq("user_id", userId).maybeSingle();
 
     if (existing) {
       const { error } = await supabase.from("candidate_profiles").update({
-        resume_path: data.resumePath, resume_text: resumeText, parsed,
+        resume_path: data.resumePath, resume_text: resumeText, parsed: parsedJson,
       }).eq("id", existing.id);
       if (error) throw new Error(error.message);
-      return { id: existing.id, parsed };
+      return { id: existing.id };
     }
     const { data: inserted, error } = await supabase.from("candidate_profiles").insert({
-      user_id: userId, resume_path: data.resumePath, resume_text: resumeText, parsed,
+      user_id: userId, resume_path: data.resumePath, resume_text: resumeText, parsed: parsedJson,
     }).select("id").single();
     if (error) throw new Error(error.message);
-    return { id: inserted.id, parsed };
+    return { id: inserted.id };
   });
 
 // -------- 2. Update parsed profile (user edits) ----------------------------
