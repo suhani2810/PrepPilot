@@ -27,31 +27,54 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
+    setMode(search.mode ?? "signin");
+  }, [search.mode]);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) navigate({ to: "/dashboard", replace: true });
     });
   }, [navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPassword = password.trim();
+
+    if (!normalizedEmail || !normalizedPassword) {
+      toast.error("Enter your email and password to continue.");
+      return;
+    }
+
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email, password,
+        const { data, error } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password: normalizedPassword,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { display_name: name || email.split("@")[0] },
+            data: { display_name: name.trim() || normalizedEmail.split("@")[0] },
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          toast.success("Account created. You can sign in now.");
+          setMode("signin");
+          return;
+        }
         toast.success("Account created — you're in!");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password: normalizedPassword,
+        });
         if (error) throw error;
         toast.success("Welcome back");
       }
-      navigate({ to: "/dashboard" });
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData.user) throw new Error("Your session could not be verified. Please try signing in again.");
+      navigate({ to: "/dashboard", replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Auth failed");
     } finally {
@@ -95,7 +118,11 @@ function AuthPage() {
           </form>
           <button
             type="button"
-            onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
+            onClick={() => {
+              const nextMode = mode === "signup" ? "signin" : "signup";
+              setMode(nextMode);
+              navigate({ to: "/auth", search: { mode: nextMode }, replace: true });
+            }}
             className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-foreground"
           >
             {mode === "signup" ? "Have an account? Sign in" : "New to PrepPilot? Create an account"}
