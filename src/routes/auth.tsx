@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -25,33 +25,58 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
+    setMode(search.mode ?? "signin");
+  }, [search.mode]);
+
+  useEffect(() => {
+    setHydrated(true);
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) navigate({ to: "/dashboard", replace: true });
     });
   }, [navigate]);
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = async (e?: FormEvent) => {
+    e?.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPassword = password.trim();
+
+    if (!normalizedEmail || !normalizedPassword) {
+      toast.error("Enter your email and password to continue.");
+      return;
+    }
+
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email, password,
+        const { data, error } = await supabase.auth.signUp({
+          email: normalizedEmail,
+          password: normalizedPassword,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { display_name: name || email.split("@")[0] },
+            data: { display_name: name.trim() || normalizedEmail.split("@")[0] },
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          toast.success("Account created. You can sign in now.");
+          setMode("signin");
+          return;
+        }
         toast.success("Account created — you're in!");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password: normalizedPassword,
+        });
         if (error) throw error;
         toast.success("Welcome back");
       }
-      navigate({ to: "/dashboard" });
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData.user) throw new Error("Your session could not be verified. Please try signing in again.");
+      navigate({ to: "/dashboard", replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Auth failed");
     } finally {
@@ -78,25 +103,30 @@ function AuthPage() {
             {mode === "signup" && (
               <div>
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Lovelace" />
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Lovelace" disabled={!hydrated || busy} />
               </div>
             )}
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={!hydrated || busy} />
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+              <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} disabled={!hydrated || busy} />
             </div>
-            <Button type="submit" disabled={busy} className="w-full bg-gradient-primary text-white hover:opacity-90">
-              {busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
+            <Button type="button" onClick={() => void submit()} disabled={!hydrated || busy} className="w-full bg-gradient-primary text-white hover:opacity-90">
+              {!hydrated ? "Loading…" : busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
             </Button>
           </form>
           <button
             type="button"
-            onClick={() => setMode(mode === "signup" ? "signin" : "signup")}
-            className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-foreground"
+            disabled={!hydrated || busy}
+            onClick={() => {
+              const nextMode = mode === "signup" ? "signin" : "signup";
+              setMode(nextMode);
+              navigate({ to: "/auth", search: { mode: nextMode }, replace: true });
+            }}
+            className="mt-6 w-full text-center text-sm text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
           >
             {mode === "signup" ? "Have an account? Sign in" : "New to PrepPilot? Create an account"}
           </button>
