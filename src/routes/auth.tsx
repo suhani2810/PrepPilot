@@ -38,8 +38,8 @@ function AuthPage() {
     });
   }, [navigate]);
 
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
+  const submit = async (e?: FormEvent) => {
+    e?.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedPassword = password.trim();
 
@@ -114,7 +114,7 @@ function AuthPage() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} disabled={!hydrated || busy} />
             </div>
-            <Button type="submit" disabled={!hydrated || busy} className="w-full bg-gradient-primary text-white hover:opacity-90">
+            <Button type="button" onClick={() => void submit()} disabled={!hydrated || busy} className="w-full bg-gradient-primary text-white hover:opacity-90">
               {!hydrated ? "Loading…" : busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
             </Button>
           </form>
