@@ -9,27 +9,223 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedResumeRouteImport } from './routes/_authenticated/resume'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedInterviewNewRouteImport } from './routes/_authenticated/interview.new'
+import { Route as AuthenticatedInterviewInterviewIdRouteImport } from './routes/_authenticated/interview.$interviewId'
+import { Route as AuthenticatedInterviewInterviewIdReportRouteImport } from './routes/_authenticated/interview.$interviewId.report'
 
-export interface FileRoutesByFullPath {}
-export interface FileRoutesByTo {}
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedResumeRoute = AuthenticatedResumeRouteImport.update({
+  id: '/resume',
+  path: '/resume',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInterviewNewRoute =
+  AuthenticatedInterviewNewRouteImport.update({
+    id: '/interview/new',
+    path: '/interview/new',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInterviewInterviewIdRoute =
+  AuthenticatedInterviewInterviewIdRouteImport.update({
+    id: '/interview/$interviewId',
+    path: '/interview/$interviewId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInterviewInterviewIdReportRoute =
+  AuthenticatedInterviewInterviewIdReportRouteImport.update({
+    id: '/report',
+    path: '/report',
+    getParentRoute: () => AuthenticatedInterviewInterviewIdRoute,
+  } as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/resume': typeof AuthenticatedResumeRoute
+  '/interview/$interviewId': typeof AuthenticatedInterviewInterviewIdRouteWithChildren
+  '/interview/new': typeof AuthenticatedInterviewNewRoute
+  '/interview/$interviewId/report': typeof AuthenticatedInterviewInterviewIdReportRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/resume': typeof AuthenticatedResumeRoute
+  '/interview/$interviewId': typeof AuthenticatedInterviewInterviewIdRouteWithChildren
+  '/interview/new': typeof AuthenticatedInterviewNewRoute
+  '/interview/$interviewId/report': typeof AuthenticatedInterviewInterviewIdReportRoute
+}
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/resume': typeof AuthenticatedResumeRoute
+  '/_authenticated/interview/$interviewId': typeof AuthenticatedInterviewInterviewIdRouteWithChildren
+  '/_authenticated/interview/new': typeof AuthenticatedInterviewNewRoute
+  '/_authenticated/interview/$interviewId/report': typeof AuthenticatedInterviewInterviewIdReportRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: never
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/resume'
+    | '/interview/$interviewId'
+    | '/interview/new'
+    | '/interview/$interviewId/report'
   fileRoutesByTo: FileRoutesByTo
-  to: never
-  id: '__root__'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/resume'
+    | '/interview/$interviewId'
+    | '/interview/new'
+    | '/interview/$interviewId/report'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/resume'
+    | '/_authenticated/interview/$interviewId'
+    | '/_authenticated/interview/new'
+    | '/_authenticated/interview/$interviewId/report'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
-const rootRouteChildren: RootRouteChildren = {}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/resume': {
+      id: '/_authenticated/resume'
+      path: '/resume'
+      fullPath: '/resume'
+      preLoaderRoute: typeof AuthenticatedResumeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/interview/new': {
+      id: '/_authenticated/interview/new'
+      path: '/interview/new'
+      fullPath: '/interview/new'
+      preLoaderRoute: typeof AuthenticatedInterviewNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/interview/$interviewId': {
+      id: '/_authenticated/interview/$interviewId'
+      path: '/interview/$interviewId'
+      fullPath: '/interview/$interviewId'
+      preLoaderRoute: typeof AuthenticatedInterviewInterviewIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/interview/$interviewId/report': {
+      id: '/_authenticated/interview/$interviewId/report'
+      path: '/report'
+      fullPath: '/interview/$interviewId/report'
+      preLoaderRoute: typeof AuthenticatedInterviewInterviewIdReportRouteImport
+      parentRoute: typeof AuthenticatedInterviewInterviewIdRoute
+    }
+  }
+}
+
+interface AuthenticatedInterviewInterviewIdRouteChildren {
+  AuthenticatedInterviewInterviewIdReportRoute: typeof AuthenticatedInterviewInterviewIdReportRoute
+}
+
+const AuthenticatedInterviewInterviewIdRouteChildren: AuthenticatedInterviewInterviewIdRouteChildren =
+  {
+    AuthenticatedInterviewInterviewIdReportRoute:
+      AuthenticatedInterviewInterviewIdReportRoute,
+  }
+
+const AuthenticatedInterviewInterviewIdRouteWithChildren =
+  AuthenticatedInterviewInterviewIdRoute._addFileChildren(
+    AuthenticatedInterviewInterviewIdRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedResumeRoute: typeof AuthenticatedResumeRoute
+  AuthenticatedInterviewInterviewIdRoute: typeof AuthenticatedInterviewInterviewIdRouteWithChildren
+  AuthenticatedInterviewNewRoute: typeof AuthenticatedInterviewNewRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedResumeRoute: AuthenticatedResumeRoute,
+  AuthenticatedInterviewInterviewIdRoute:
+    AuthenticatedInterviewInterviewIdRouteWithChildren,
+  AuthenticatedInterviewNewRoute: AuthenticatedInterviewNewRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
