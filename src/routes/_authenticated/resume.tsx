@@ -20,6 +20,10 @@ type Parsed = {
   projects?: { name: string; description: string; technologies: string[]; possibleInterviewTopics: string[] }[];
 };
 
+export const Route = createFileRoute("/_authenticated/resume")({
+  component: ResumePage,
+});
+
 function ResumePage() {
   const [profile, setProfile] = useState<{ id: string; parsed: Parsed } | null>(null);
   const [busy, setBusy] = useState(false);
