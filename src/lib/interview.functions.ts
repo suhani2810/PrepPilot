@@ -1,8 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { generateText, NoObjectGeneratedError, Output } from "ai";
+import { generateText, NoObjectGeneratedError } from "ai";
 import { z } from "zod";
 import { createLovableGateway, DEFAULT_MODEL } from "./ai-gateway.server";
+import type { Json } from "@/integrations/supabase/types";
+
+const asJson = (v: unknown) => v as unknown as Json;
+
 
 // -------- helpers ------------------------------------------------
 function stripJsonFence(s: string): string {
@@ -109,7 +113,7 @@ export const updateCandidateProfile = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
-      .from("candidate_profiles").update({ parsed: data.parsed }).eq("id", data.id);
+      .from("candidate_profiles").update({ parsed: asJson(data.parsed) }).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -165,12 +169,12 @@ Ask an opening question. Return JSON: { "question": string, "topic": string, "di
       interview_types: data.interviewTypes,
       job_description: data.jobDescription ?? null,
       duration_minutes: data.durationMinutes,
-      plan,
-      context: {
+      plan: asJson(plan),
+      context: asJson({
         currentDifficulty: first.difficulty,
         topicsCovered: [first.topic],
         topicScores: {},
-      },
+      }),
       status: "active",
     }).select("id").single();
     if (iErr) throw new Error(iErr.message);
