@@ -149,11 +149,14 @@ export const startInterview = createServerFn({ method: "POST" })
     durationMinutes: z.number().int().min(5).max(180),
   }).parse(data))
   .handler(async ({ data, context }) => {
+    console.log("[startInterview] handler started");
     const { supabase, userId } = context;
     const { data: cp } = await supabase.from("candidate_profiles")
       .select("id, parsed").eq("user_id", userId).maybeSingle();
+    console.log("[startInterview] candidate profile loaded:", cp ? "yes" : "no");
 
     const candidateSummary = cp?.parsed ?? {};
+    console.log("[startInterview] generating plan");
     const plan = await generateJson<{ topics: { name: string; weight: number }[]; summary: string }>({
       system: "You are an interview planner. Create an interview plan tailored to a candidate.",
       prompt: `Candidate profile: ${JSON.stringify(candidateSummary).slice(0, 8000)}
@@ -167,7 +170,9 @@ Return JSON: { "summary": string, "topics": [{ "name": string, "weight": number 
 5-8 topics. Weights are numbers 1-5 based on importance.`,
       fallback: { topics: [{ name: data.role, weight: 3 }], summary: data.role },
     });
+    console.log("[startInterview] plan generated:", JSON.stringify(plan).slice(0, 200));
 
+    console.log("[startInterview] generating first question");
     const first = await generateJson<{ question: string; topic: string; difficulty: number }>({
       system: "You are an expert interviewer. Ask a clear, focused opening interview question tailored to the candidate.",
       prompt: `Candidate: ${JSON.stringify(candidateSummary).slice(0, 4000)}
@@ -177,6 +182,7 @@ Plan topics: ${plan.topics.map((t) => t.name).join(", ")}.
 Ask an opening question. Return JSON: { "question": string, "topic": string, "difficulty": number(1-5) }`,
       fallback: { question: `Tell me about yourself and your experience relevant to a ${data.role} role.`, topic: "intro", difficulty: 2 },
     });
+    console.log("[startInterview] first question generated:", JSON.stringify(first).slice(0, 200));
 
     const { data: interview, error: iErr } = await supabase.from("interviews").insert({
       user_id: userId,
@@ -203,6 +209,7 @@ Ask an opening question. Return JSON: { "question": string, "topic": string, "di
     });
     if (mErr) throw new Error(mErr.message);
 
+    console.log("[startInterview] complete, interviewId:", interview.id);
     return { interviewId: interview.id };
   });
 
