@@ -28,14 +28,18 @@ async function generateJson<T>(opts: {
   system: string;
   prompt: string;
   fallback: T;
+  timeoutMs?: number;
 }): Promise<T> {
   const gateway = createLovableGateway();
   const model = gateway(DEFAULT_MODEL);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), opts.timeoutMs ?? 45_000);
   try {
     const { text } = await generateText({
       model,
       system: opts.system + "\nReturn ONLY valid JSON. No prose, no markdown.",
       prompt: opts.prompt,
+      abortSignal: controller.signal,
     });
     const parsed = safeJsonParse<T>(text);
     return parsed ?? opts.fallback;
@@ -44,7 +48,13 @@ async function generateJson<T>(opts: {
       const parsed = safeJsonParse<T>(err.text ?? "");
       if (parsed) return parsed;
     }
-    throw err;
+    const msg = err instanceof Error ? err.message : String(err);
+    if (controller.signal.aborted) {
+      throw new Error("AI request timed out. Please try again.");
+    }
+    throw new Error(`AI request failed: ${msg}`);
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
