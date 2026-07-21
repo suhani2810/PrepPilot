@@ -33,12 +33,7 @@ async function generateJson<T>(opts: {
   const gateway = createLovableGateway();
   const model = gateway(DEFAULT_MODEL);
   const controller = new AbortController();
-  const timeoutMs = opts.timeoutMs ?? 45_000;
-  console.log(`[generateJson] starting call (timeout ${timeoutMs}ms)`);
-  const timeout = setTimeout(() => {
-    console.log(`[generateJson] aborting after ${timeoutMs}ms`);
-    controller.abort();
-  }, timeoutMs);
+  const timeout = setTimeout(() => controller.abort(), opts.timeoutMs ?? 45_000);
   try {
     const { text } = await generateText({
       model,
@@ -46,11 +41,9 @@ async function generateJson<T>(opts: {
       prompt: opts.prompt,
       abortSignal: controller.signal,
     });
-    console.log(`[generateJson] received text (length ${text.length})`);
     const parsed = safeJsonParse<T>(text);
     return parsed ?? opts.fallback;
   } catch (err) {
-    console.log(`[generateJson] caught error:`, err instanceof Error ? err.message : String(err));
     if (NoObjectGeneratedError.isInstance(err)) {
       const parsed = safeJsonParse<T>(err.text ?? "");
       if (parsed) return parsed;
