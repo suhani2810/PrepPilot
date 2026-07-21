@@ -186,6 +186,7 @@ Ask an opening question. Return JSON: { "question": string, "topic": string, "di
         topicScores: {},
       }),
       status: "active",
+      started_at: new Date().toISOString(),
     }).select("id").single();
     if (iErr) throw new Error(iErr.message);
 
