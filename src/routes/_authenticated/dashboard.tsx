@@ -54,7 +54,7 @@ function Dashboard() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-muted-foreground">Welcome back{profile?.display_name ? `, ${profile.display_name}` : ""}</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">Your interview readiness</h1>
+          <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Your interview readiness</h1>
         </div>
         <Link to="/interview/new">
           <Button size="lg" className="bg-gradient-primary text-white shadow-glow hover:opacity-90">
@@ -88,11 +88,11 @@ function Dashboard() {
           <div className="h-56 w-full">
             <ResponsiveContainer>
               <LineChart data={trend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.28 0.03 265)" />
-                <XAxis dataKey="idx" stroke="oklch(0.7 0.02 265)" />
-                <YAxis domain={[0, 10]} stroke="oklch(0.7 0.02 265)" />
-                <Tooltip contentStyle={{ background: "oklch(0.19 0.025 265)", border: "1px solid oklch(0.28 0.03 265)" }} />
-                <Line type="monotone" dataKey="score" stroke="oklch(0.65 0.22 270)" strokeWidth={2} dot={{ r: 4 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="idx" stroke="var(--muted-foreground)" />
+                <YAxis domain={[0, 10]} stroke="var(--muted-foreground)" />
+                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
+                <Line type="monotone" dataKey="score" stroke="var(--primary)" strokeWidth={2} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>

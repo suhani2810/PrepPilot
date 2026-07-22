@@ -56,7 +56,7 @@ function NewInterview() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-10">
       <p className="text-sm text-muted-foreground">Configure</p>
-      <h1 className="mt-1 text-3xl font-semibold tracking-tight">New interview</h1>
+      <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">New interview</h1>
 
       <Card className="mt-6 border-border/60 bg-card/60 p-6">
         <form onSubmit={submit} className="space-y-5">

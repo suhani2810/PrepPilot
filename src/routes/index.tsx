@@ -54,7 +54,7 @@ function Landing() {
           <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs text-muted-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-highlight" /> Adaptive AI Interview Intelligence
           </div>
-          <h1 className="text-balance text-5xl font-bold tracking-tight sm:text-6xl md:text-7xl">
+          <h1 className="text-balance font-display text-6xl font-semibold tracking-tight sm:text-7xl md:text-8xl">
             <span className="text-gradient">PrepPilot</span>
           </h1>
           <p className="mt-4 text-xl font-medium text-muted-foreground sm:text-2xl">From Resume to Ready.</p>
@@ -79,7 +79,7 @@ function Landing() {
           <div className="mb-3 inline-flex items-center gap-2 text-xs uppercase tracking-widest text-highlight">
             <AlertTriangle className="h-3.5 w-3.5" /> The problem
           </div>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Interview Preparation Is Broken</h2>
+          <h2 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Interview Preparation Is Broken</h2>
           <p className="mt-4 text-muted-foreground">
             You practice hard, walk into the room, and get asked something no prep tool ever showed you.
           </p>
@@ -104,7 +104,7 @@ function Landing() {
             <div className="mb-3 inline-flex items-center gap-2 text-xs uppercase tracking-widest text-primary">
               <Sparkles className="h-3.5 w-3.5" /> Meet PrepPilot
             </div>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Six steps from resume to ready</h2>
+            <h2 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Six steps from resume to ready</h2>
             <p className="mt-4 text-muted-foreground">A closed feedback loop between your resume, the interviewer, and your growth.</p>
           </div>
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -126,7 +126,7 @@ function Landing() {
 
       {/* CTA */}
       <section className="mx-auto max-w-4xl px-6 py-24 text-center">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Ready when the room is.</h2>
+        <h2 className="font-display text-4xl font-semibold tracking-tight sm:text-5xl">Ready when the room is.</h2>
         <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
           Upload your resume, pick a role, and take your first adaptive interview in under two minutes.
         </p>

@@ -83,7 +83,7 @@ function ResumePage() {
     <div className="mx-auto max-w-5xl px-6 py-10">
       <div>
         <p className="text-sm text-muted-foreground">Resume Intelligence</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight">Your candidate profile</h1>
+        <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">Your candidate profile</h1>
       </div>
 
       <Card className="mt-6 border-border/60 bg-card/60 p-6">
