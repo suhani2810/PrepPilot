@@ -1,13 +1,13 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { submitAnswer, endInterview } from "@/lib/interview.functions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Bot, User, StopCircle, Send, Loader2, Clock } from "lucide-react";
+import { Bot, User, StopCircle, Send, Loader2, Clock, Maximize2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/interview/$interviewId")({
@@ -18,9 +18,10 @@ export const Route = createFileRoute("/_authenticated/interview/$interviewId")({
 type Msg = { id: string; role: "ai" | "user"; content: string; topic: string | null; difficulty: number | null; order_index: number };
 
 function formatTime(totalSeconds: number) {
-  const m = Math.floor(Math.abs(totalSeconds) / 60);
-  const s = Math.abs(totalSeconds) % 60;
-  return `${totalSeconds < 0 ? "-" : ""}${m}:${s.toString().padStart(2, "0")}`;
+  const s = Math.max(0, totalSeconds);
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${r.toString().padStart(2, "0")}`;
 }
 
 function InterviewRoom() {
@@ -35,11 +36,30 @@ function InterviewRoom() {
   const [startedAt, setStartedAt] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [expired, setExpired] = useState(false);
+  const [showAntiCheatWarning, setShowAntiCheatWarning] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const expiredHandledRef = useRef(false);
+  const finishedRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const submitFn = useServerFn(submitAnswer);
   const endFn = useServerFn(endInterview);
+
+  const finish = useCallback(async (reason?: string) => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
+    setEnding(true);
+    if (reason) toast.message(reason);
+    try {
+      await endFn({ data: { interviewId } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save report — showing what we have.");
+    } finally {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+      } catch { /* noop */ }
+      nav({ to: "/interview/$interviewId/report", params: { interviewId }, replace: true });
+    }
+  }, [endFn, interviewId, nav]);
 
   const load = async () => {
     const [{ data: iv }, { data: msgs }] = await Promise.all([
@@ -53,7 +73,8 @@ function InterviewRoom() {
       setDurationMinutes(iv.duration_minutes);
       setStartedAt(iv.started_at);
       if (iv.status === "completed") {
-        nav({ to: "/interview/$interviewId/report", params: { interviewId } });
+        finishedRef.current = true;
+        nav({ to: "/interview/$interviewId/report", params: { interviewId }, replace: true });
         return;
       }
     }
@@ -63,39 +84,65 @@ function InterviewRoom() {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [interviewId]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
+  // Countdown — stops the moment interview ends
   useEffect(() => {
     if (!startedAt || durationMinutes == null) return;
+    if (expired || finishedRef.current) return;
     const endTime = new Date(startedAt).getTime() + durationMinutes * 60_000;
 
     const tick = () => {
-      const remaining = Math.ceil((endTime - Date.now()) / 1000);
+      if (finishedRef.current) return;
+      const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
       setTimeLeft(remaining);
-      if (remaining <= 0 && !expiredHandledRef.current) {
-        expiredHandledRef.current = true;
+      if (remaining <= 0) {
         setExpired(true);
-        toast.error("Time's up — ending the interview.");
-        handleTimeUp();
+        finish("Time's up — generating your report.");
       }
     };
 
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [startedAt, durationMinutes]);
+  }, [startedAt, durationMinutes, expired, finish]);
 
-  const handleTimeUp = async () => {
-    setEnding(true);
+  // Anti-cheat: end interview if user leaves the tab or exits fullscreen
+  useEffect(() => {
+    if (finishedRef.current) return;
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden" && !finishedRef.current) {
+        finish("You left the interview window — ending session.");
+      }
+    };
+    const onBlur = () => {
+      // brief tolerance for OS-level focus loss
+      setShowAntiCheatWarning(true);
+      window.setTimeout(() => setShowAntiCheatWarning(false), 2500);
+    };
+    const onFsChange = () => {
+      if (!document.fullscreenElement && !finishedRef.current && startedAt) {
+        finish("Exited fullscreen — ending interview.");
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("blur", onBlur);
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("blur", onBlur);
+      document.removeEventListener("fullscreenchange", onFsChange);
+    };
+  }, [finish, startedAt]);
+
+  const enterFullscreen = async () => {
     try {
-      await endFn({ data: { interviewId } });
-      nav({ to: "/interview/$interviewId/report", params: { interviewId } });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to end interview");
-      setEnding(false);
+      await containerRef.current?.requestFullscreen();
+    } catch {
+      toast.error("Couldn't enter fullscreen.");
     }
   };
 
   const send = async () => {
-    if (!answer.trim() || sending || expired) return;
+    if (!answer.trim() || sending || expired || finishedRef.current) return;
     const text = answer.trim();
     setAnswer("");
     setSending(true);
@@ -113,21 +160,15 @@ function InterviewRoom() {
   };
 
   const end = async () => {
+    if (finishedRef.current) return;
     if (!confirm("End the interview and generate your report?")) return;
-    setEnding(true);
-    try {
-      await endFn({ data: { interviewId } });
-      nav({ to: "/interview/$interviewId/report", params: { interviewId } });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to end");
-      setEnding(false);
-    }
+    await finish();
   };
 
   const timerColor = timeLeft == null ? "text-muted-foreground" : timeLeft <= 60 ? "text-red-400" : timeLeft <= 300 ? "text-amber-400" : "text-muted-foreground";
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-64px)] max-w-3xl flex-col px-4 py-4">
+    <div ref={containerRef} className="mx-auto flex h-[calc(100vh-64px)] max-w-3xl flex-col px-4 py-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <p className="text-xs text-muted-foreground">Interview</p>
@@ -140,15 +181,24 @@ function InterviewRoom() {
               {formatTime(timeLeft)}
             </div>
           )}
-          <Button variant="outline" size="sm" onClick={end} disabled={ending || expired}>
+          <Button variant="outline" size="sm" onClick={enterFullscreen} disabled={ending || expired}>
+            <Maximize2 className="mr-2 h-4 w-4" /> Fullscreen
+          </Button>
+          <Button variant="outline" size="sm" onClick={end} disabled={ending}>
             <StopCircle className="mr-2 h-4 w-4" /> End Interview
           </Button>
         </div>
       </div>
 
-      {expired && (
-        <div className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-200">
-          Time's up. The interview is ending and your report is being generated.
+      {showAntiCheatWarning && !expired && (
+        <div className="mb-3 flex items-center gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-sm text-amber-200">
+          <ShieldAlert className="h-4 w-4" /> Stay focused on the interview window — leaving will end the session.
+        </div>
+      )}
+
+      {(expired || ending) && (
+        <div className="mb-3 rounded-md border border-primary/30 bg-primary/10 px-4 py-2 text-sm">
+          Wrapping up and generating your report…
         </div>
       )}
 
@@ -191,19 +241,19 @@ function InterviewRoom() {
         <div className="border-t border-border/60 p-3">
           <div className="flex gap-2">
             <Textarea
-              placeholder={expired ? "Time's up" : "Type your answer…"}
+              placeholder={expired ? "Interview ended" : "Type your answer…"}
               rows={3}
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); send(); } }}
-              disabled={sending || expired}
+              disabled={sending || expired || ending}
               className="resize-none"
             />
-            <Button onClick={send} disabled={sending || expired || !answer.trim()} className="bg-gradient-primary text-white hover:opacity-90">
+            <Button onClick={send} disabled={sending || expired || ending || !answer.trim()} className="bg-gradient-primary text-white hover:opacity-90">
               <Send className="h-4 w-4" />
             </Button>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">Tip: ⌘/Ctrl + Enter to send</p>
+          <p className="mt-2 text-xs text-muted-foreground">Tip: ⌘/Ctrl + Enter to send · Leaving the tab or exiting fullscreen ends the interview.</p>
         </div>
       </Card>
     </div>
