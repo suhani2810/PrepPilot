@@ -76,7 +76,7 @@ function Report() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-muted-foreground">Report</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">{iv.role}</h1>
+          <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">{iv.role}</h1>
         </div>
         <div className="flex gap-2">
           <Link to="/dashboard"><Button variant="outline">Dashboard</Button></Link>
@@ -105,11 +105,11 @@ function Report() {
           <div className="h-64">
             <ResponsiveContainer>
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.28 0.03 265)" />
-                <XAxis dataKey="name" stroke="oklch(0.7 0.02 265)" fontSize={12} />
-                <YAxis domain={[0, 10]} stroke="oklch(0.7 0.02 265)" />
-                <Tooltip contentStyle={{ background: "oklch(0.19 0.025 265)", border: "1px solid oklch(0.28 0.03 265)" }} />
-                <Bar dataKey="value" fill="oklch(0.65 0.22 270)" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={12} />
+                <YAxis domain={[0, 10]} stroke="var(--muted-foreground)" />
+                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)" }} />
+                <Bar dataKey="value" fill="var(--primary)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -119,10 +119,10 @@ function Report() {
           <div className="h-64">
             <ResponsiveContainer>
               <RadarChart data={chartData}>
-                <PolarGrid stroke="oklch(0.28 0.03 265)" />
-                <PolarAngleAxis dataKey="name" stroke="oklch(0.7 0.02 265)" fontSize={11} />
-                <PolarRadiusAxis domain={[0, 10]} stroke="oklch(0.4 0.03 265)" />
-                <Radar dataKey="value" stroke="oklch(0.65 0.22 270)" fill="oklch(0.65 0.22 270)" fillOpacity={0.35} />
+                <PolarGrid stroke="var(--border)" />
+                <PolarAngleAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={11} />
+                <PolarRadiusAxis domain={[0, 10]} stroke="var(--muted-foreground)" />
+                <Radar dataKey="value" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.35} />
               </RadarChart>
             </ResponsiveContainer>
           </div>

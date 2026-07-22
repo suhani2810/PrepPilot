@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Sparkles } from "lucide-react";
+import { PrepPilotLogo } from "@/components/PrepPilotLogo";
 
 const searchSchema = z.object({ mode: z.enum(["signin", "signup"]).optional() });
 
@@ -87,15 +87,13 @@ function AuthPage() {
   return (
     <div className="relative min-h-screen">
       <div className="absolute inset-0 bg-grid opacity-30" />
+      <div className="absolute inset-0" style={{ backgroundImage: "var(--gradient-hero)" }} />
       <div className="relative mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-12">
-        <Link to="/" className="mb-8 flex items-center justify-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-md bg-gradient-primary shadow-glow">
-            <Sparkles className="h-4 w-4 text-white" />
-          </div>
-          <span className="text-xl font-semibold">PrepPilot</span>
+        <Link to="/" className="mb-8 flex items-center justify-center">
+          <PrepPilotLogo />
         </Link>
-        <Card className="border-border/60 bg-card/80 p-8 backdrop-blur">
-          <h1 className="text-2xl font-semibold">{mode === "signup" ? "Create your account" : "Welcome back"}</h1>
+        <Card className="border-border/60 bg-card/80 p-8 shadow-glow backdrop-blur">
+          <h1 className="font-display text-3xl font-semibold tracking-tight">{mode === "signup" ? "Create your account" : "Welcome back"}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "signup" ? "Start your first adaptive interview in minutes." : "Sign in to continue prepping."}
           </p>

@@ -347,18 +347,23 @@ export const endInterview = createServerFn({ method: "POST" })
 
     const report = { dimensions, overall, readiness, strengths, weaknesses, messageCount: msgs?.length ?? 0 };
 
-    await supabase.from("interviews").update({
+    const { error: updErr } = await supabase.from("interviews").update({
       status: "completed", overall_score: overall, readiness_score: readiness,
       final_report: asJson(report), completed_at: new Date().toISOString(),
     }).eq("id", data.interviewId);
+    if (updErr) throw new Error(`Failed to save report: ${updErr.message}`);
 
-    // Update profile readiness (rolling avg)
-    const { data: past } = await supabase.from("interviews")
-      .select("readiness_score").eq("user_id", userId).eq("status", "completed");
-    const avgReadiness = past && past.length
-      ? Math.round(past.reduce((a, x) => a + Number(x.readiness_score ?? 0), 0) / past.length)
-      : readiness;
-    await supabase.from("profiles").update({ readiness_score: avgReadiness }).eq("id", userId);
+    // Update profile readiness (rolling avg) — non-fatal
+    try {
+      const { data: past } = await supabase.from("interviews")
+        .select("readiness_score").eq("user_id", userId).eq("status", "completed");
+      const avgReadiness = past && past.length
+        ? Math.round(past.reduce((a, x) => a + Number(x.readiness_score ?? 0), 0) / past.length)
+        : readiness;
+      await supabase.from("profiles").update({ readiness_score: avgReadiness }).eq("id", userId);
+    } catch (e) {
+      console.warn("[endInterview] profile readiness update failed", e);
+    }
 
     return { report };
   });
