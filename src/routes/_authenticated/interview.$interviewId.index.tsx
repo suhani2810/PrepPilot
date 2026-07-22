@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Bot, User, StopCircle, Send, Loader2, Clock, Maximize2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/interview/$interviewId")({
+export const Route = createFileRoute("/_authenticated/interview/$interviewId/")({
   head: () => ({ meta: [{ title: "Interview — PrepPilot" }] }),
   component: InterviewRoom,
 });
