@@ -71,6 +71,30 @@ function Report() {
     }
   }
 
+  const answered = pairs.filter((p) => p.a).length;
+
+  if (answered === 0) {
+    return (
+      <div className="mx-auto max-w-2xl px-6 py-16 text-center">
+        <p className="text-sm text-muted-foreground">Report</p>
+        <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">{iv.role}</h1>
+        <Card className="mt-8 border-border/60 bg-card/60 p-10">
+          <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-primary/15 text-primary">
+            <Sparkles className="h-6 w-6" />
+          </div>
+          <h2 className="font-display text-2xl font-semibold">Nothing to score yet</h2>
+          <p className="mt-2 text-muted-foreground">
+            You didn't submit any answers this session, so there's no evaluation to report. Jump back in — even a rough attempt beats a blank page.
+          </p>
+          <div className="mt-6 flex justify-center gap-2">
+            <Link to="/dashboard"><Button variant="outline">Dashboard</Button></Link>
+            <Link to="/interview/new"><Button className="bg-gradient-primary text-white hover:opacity-90">Start a New Interview</Button></Link>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -83,6 +107,7 @@ function Report() {
           <Link to="/interview/new"><Button className="bg-gradient-primary text-white hover:opacity-90">New Interview</Button></Link>
         </div>
       </div>
+
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         <Card className="border-border/60 bg-card/60 p-6">
