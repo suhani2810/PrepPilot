@@ -131,7 +131,7 @@ function InterviewRoom() {
       <div className="mb-3 flex items-center justify-between">
         <div>
           <p className="text-xs text-muted-foreground">Interview</p>
-          <h1 className="text-lg font-semibold">{role}</h1>
+          <h1 className="font-display text-xl font-semibold">{role}</h1>
         </div>
         <div className="flex items-center gap-3">
           {timeLeft != null && (

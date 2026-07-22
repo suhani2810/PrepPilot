@@ -57,7 +57,7 @@ function Landing() {
           <h1 className="text-balance font-display text-6xl font-semibold tracking-tight sm:text-7xl md:text-8xl">
             <span className="text-gradient">PrepPilot</span>
           </h1>
-          <p className="mt-4 text-xl font-medium text-muted-foreground sm:text-2xl">From Resume to Ready.</p>
+          <p className="mt-4 font-display text-2xl italic text-muted-foreground sm:text-3xl">From Resume to Ready.</p>
           <p className="mx-auto mt-6 max-w-2xl text-balance text-base text-muted-foreground sm:text-lg">
             An adaptive AI interviewer that reads your resume, personalizes every question,
             evaluates every answer, and turns your prep into a measurable readiness score.
