@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { generateText, NoObjectGeneratedError } from "ai";
 import { z } from "zod";
-import { createLovableGateway, DEFAULT_MODEL } from "./ai-gateway.server";
+import { getAIModels } from "./ai.server";
 import type { Json } from "@/integrations/supabase/types";
 
 const asJson = (v: unknown) => v as unknown as Json;
@@ -30,32 +30,37 @@ async function generateJson<T>(opts: {
   fallback: T;
   timeoutMs?: number;
 }): Promise<T> {
-  const gateway = createLovableGateway();
-  const model = gateway(DEFAULT_MODEL);
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), opts.timeoutMs ?? 45_000);
-  try {
-    const { text } = await generateText({
-      model,
-      system: opts.system + "\nReturn ONLY valid JSON. No prose, no markdown.",
-      prompt: opts.prompt,
-      abortSignal: controller.signal,
-    });
-    const parsed = safeJsonParse<T>(text);
-    return parsed ?? opts.fallback;
-  } catch (err) {
-    if (NoObjectGeneratedError.isInstance(err)) {
-      const parsed = safeJsonParse<T>(err.text ?? "");
-      if (parsed) return parsed;
+  const models = getAIModels();
+  const system = opts.system + "\nReturn ONLY valid JSON. No prose, no markdown.";
+  let lastErr: unknown = null;
+  for (const { name, model } of models) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), opts.timeoutMs ?? 45_000);
+    try {
+      const { text } = await generateText({
+        model,
+        system,
+        prompt: opts.prompt,
+        abortSignal: controller.signal,
+      });
+      const parsed = safeJsonParse<T>(text);
+      return parsed ?? opts.fallback;
+    } catch (err) {
+      if (NoObjectGeneratedError.isInstance(err)) {
+        const parsed = safeJsonParse<T>(err.text ?? "");
+        if (parsed) return parsed;
+      }
+      lastErr = err;
+      if (controller.signal.aborted) {
+        lastErr = new Error(`AI request timed out via ${name}.`);
+      }
+      // fall through and try next provider
+    } finally {
+      clearTimeout(timeout);
     }
-    const msg = err instanceof Error ? err.message : String(err);
-    if (controller.signal.aborted) {
-      throw new Error("AI request timed out. Please try again.");
-    }
-    throw new Error(`AI request failed: ${msg}`);
-  } finally {
-    clearTimeout(timeout);
   }
+  const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+  throw new Error(`AI request failed: ${msg}`);
 }
 
 // -------- 1. Parse resume --------------------------------------------------
