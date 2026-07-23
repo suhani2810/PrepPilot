@@ -5,8 +5,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { SectionEyebrow, SectionHeader, Surface } from "@/components/prep/primitives";
 import {
   FileText, Brain, MessageSquare, LineChart, PuzzleIcon, RefreshCw,
-  Layers, Sparkles, ArrowRight, CheckCircle2, Target, Compass,
+  Layers, Sparkles, ArrowRight, CheckCircle2, Target, Compass, Github, Linkedin,
 } from "lucide-react";
+
+const creators = [
+  { name: "Divyam Madan", github: "https://github.com/Divyam-Madan", linkedin: "https://www.linkedin.com/in/divyam-madan/" },
+  { name: "Suhani Mahajan", github: "https://github.com/suhani2810", linkedin: "https://www.linkedin.com/in/suhani-mahajan-2431b8328/" },
+];
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
