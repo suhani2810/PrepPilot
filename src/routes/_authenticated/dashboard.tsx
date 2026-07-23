@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, Area, AreaChart,
 } from "recharts";
-import { Plus, FileText, TrendingUp, Trophy, Compass, ArrowRight, ChevronRight, Clock3 } from "lucide-react";
+import { Plus, FileText, TrendingUp, Trophy, Compass, ArrowRight, ChevronRight, Clock3, Sparkles } from "lucide-react";
 import { Stat, Surface, EmptyState, ReadinessGauge, SectionEyebrow, Skeleton } from "@/components/prep/primitives";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
