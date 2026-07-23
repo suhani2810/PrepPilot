@@ -506,6 +506,7 @@ Return JSON with this shape:
         })),
         quickWins: rankedMissing.slice(0, 3),
         practiceInterviewPrompts: [`Re-run ${interview.role} mock focused on ${weakDimensions[0] ?? "core skills"}.`],
+        generatedAt: new Date().toISOString(),
       },
       timeoutMs: 60_000,
     });
