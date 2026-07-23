@@ -170,3 +170,11 @@ For deeper porting notes, model swaps, and provider setup, see
   clean — see `FEATURE_STATUS.md`).
 - Live collaborative coding.
 - Webcam-based behavior analysis.
+
+## Creators
+
+PrepPilot is designed & built by:
+
+- **Divyam Madan** — [GitHub](https://github.com/Divyam-Madan) · [LinkedIn](https://www.linkedin.com/in/divyam-madan/)
+- **Suhani Mahajan** — [GitHub](https://github.com/suhani2810) · [LinkedIn](https://www.linkedin.com/in/suhani-mahajan-2431b8328/)
+
