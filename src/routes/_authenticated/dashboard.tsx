@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, Area, AreaChart,
 } from "recharts";
-import { Plus, FileText, TrendingUp, Trophy, Compass, ArrowRight, ChevronRight, Clock3 } from "lucide-react";
+import { Plus, FileText, TrendingUp, Trophy, Compass, ArrowRight, ChevronRight, Clock3, Sparkles } from "lucide-react";
 import { Stat, Surface, EmptyState, ReadinessGauge, SectionEyebrow, Skeleton } from "@/components/prep/primitives";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -48,21 +48,31 @@ function Dashboard() {
 
   if (interviews === null) return <DashboardSkeleton />;
 
-  const completed = interviews.filter((i) => i.status === "completed");
-  const avg = completed.length
-    ? Math.round((completed.reduce((a, i) => a + Number(i.overall_score ?? 0), 0) / completed.length) * 10) / 10
-    : 0;
-  const readiness = profile?.readiness_score ?? 0;
-  const trend = [...completed].reverse().map((i, idx) => ({
-    idx: idx + 1, score: Number(i.overall_score ?? 0),
+  // Only interviews that were actually scored (i.e. had at least one evaluated
+  // answer and produced a final report) count toward analytics. Abandoned
+  // sessions and zero-answer completions never masquerade as "0/10 performance".
+  const scored = interviews.filter(
+    (i) => i.status === "completed" && i.overall_score != null,
+  );
+  const avg = scored.length
+    ? Math.round((scored.reduce((a, i) => a + Number(i.overall_score), 0) / scored.length) * 10) / 10
+    : null;
+  // Readiness is only meaningful once we have at least one scored session.
+  const readiness = scored.length > 0 ? (profile?.readiness_score ?? null) : null;
+  const trend = [...scored].reverse().map((i, idx) => ({
+    idx: idx + 1, score: Number(i.overall_score),
   }));
-  const latest = completed[0];
+  const latest = scored[0];
   const active = interviews.find((i) => i.status !== "completed");
 
-  // Aggregate strengths / weaknesses from recent 3 completed reports
-  const recentReports = completed.slice(0, 3);
+  // Aggregate strengths / weaknesses from recent 3 scored reports only.
+  const recentReports = scored.slice(0, 3);
   const strengthTally = tally(recentReports.flatMap((r) => r.final_report?.strengths ?? []));
   const weaknessTally = tally(recentReports.flatMap((r) => r.final_report?.weaknesses ?? []));
+
+  // First-run experience: no scored interviews yet. Show a premium empty
+  // state instead of fake 0% readiness and empty charts.
+  const isFirstRun = scored.length === 0;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
@@ -115,6 +125,49 @@ function Dashboard() {
         </Surface>
       )}
 
+      {isFirstRun ? (
+        /* Premium empty state — no fake metrics, no empty charts. */
+        <Surface elevated className="relative mt-6 overflow-hidden p-8 sm:p-12">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
+          <div className="pointer-events-none absolute -left-16 bottom--16 h-56 w-56 rounded-full bg-highlight/10 blur-3xl" />
+          <div className="relative grid gap-8 md:grid-cols-[1.5fr_1fr] md:items-center">
+            <div>
+              <SectionEyebrow>Your dashboard is waiting</SectionEyebrow>
+              <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                Complete your first interview to unlock your readiness score.
+              </h2>
+              <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted-foreground">
+                Readiness %, performance trend, strengths, and focus areas all appear here after your first scored session. Nothing is precomputed and nothing is faked — every number comes from an interview you actually took.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <Link to="/interview/new">
+                  <Button size="lg" className="bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90">
+                    <Plus className="mr-2 h-4 w-4" /> Start your first interview
+                  </Button>
+                </Link>
+                {!hasResume && (
+                  <Link to="/resume"><Button size="lg" variant="outline">Upload resume first</Button></Link>
+                )}
+              </div>
+              <ul className="mt-6 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+                <li className="flex items-start gap-2"><TrendingUp className="mt-0.5 h-3.5 w-3.5 text-primary" /> Performance trend across sessions</li>
+                <li className="flex items-start gap-2"><Trophy className="mt-0.5 h-3.5 w-3.5 text-primary" /> Readiness % from real evaluations</li>
+                <li className="flex items-start gap-2"><Compass className="mt-0.5 h-3.5 w-3.5 text-primary" /> Personalized focus areas</li>
+                <li className="flex items-start gap-2"><Sparkles className="mt-0.5 h-3.5 w-3.5 text-primary" /> Post-interview learning roadmap</li>
+              </ul>
+            </div>
+            <div className="hidden justify-center md:flex">
+              <div className="relative grid h-48 w-48 place-items-center rounded-full border border-dashed border-primary/40 text-center">
+                <div>
+                  <p className="font-display text-4xl font-semibold text-muted-foreground">—</p>
+                  <p className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">Not yet measured</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Surface>
+      ) : (
+      <>
       {/* Readiness hero */}
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.25fr_1fr]">
         <Surface elevated className="relative overflow-hidden p-6 sm:p-8">
@@ -123,30 +176,27 @@ function Dashboard() {
             <div className="min-w-0 flex-1">
               <SectionEyebrow>Interview readiness</SectionEyebrow>
               <p className="mt-3 font-display text-5xl font-semibold tabular-nums text-gradient sm:text-6xl">
-                {readiness}<span className="text-2xl text-muted-foreground">%</span>
+                {readiness ?? 0}<span className="text-2xl text-muted-foreground">%</span>
               </p>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                {completed.length === 0
-                  ? "Run your first interview to establish a baseline readiness score."
-                  : latest
-                    ? `Latest session scored ${latest.overall_score ?? 0}/10 in ${latest.role}.`
-                    : "Rolling average across your completed sessions."}
+                {latest
+                  ? `Latest session scored ${latest.overall_score}/10 in ${latest.role}.`
+                  : "Rolling average across your completed sessions."}
               </p>
-              {completed.length > 0 && (
-                <Link to="/history" className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-                  View full history <ChevronRight className="h-3 w-3" />
-                </Link>
-              )}
+              <Link to="/history" className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+                View full history <ChevronRight className="h-3 w-3" />
+              </Link>
             </div>
-            <ReadinessGauge value={readiness} />
+            <ReadinessGauge value={readiness ?? 0} />
           </div>
         </Surface>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-          <Stat label="Interviews" value={completed.length} icon={<Trophy className="h-3.5 w-3.5" />} hint={completed.length ? `${interviews.length} total sessions` : "Start your first one"} />
-          <Stat label="Average score" value={completed.length ? `${avg}` : "—"} icon={<TrendingUp className="h-3.5 w-3.5" />} hint={completed.length ? "out of 10 across all sessions" : "Complete a session to unlock"} />
+          <Stat label="Scored interviews" value={scored.length} icon={<Trophy className="h-3.5 w-3.5" />} hint={`${interviews.length} total session${interviews.length === 1 ? "" : "s"}`} />
+          <Stat label="Average score" value={avg != null ? `${avg}` : "—"} icon={<TrendingUp className="h-3.5 w-3.5" />} hint="out of 10 across scored sessions" />
         </div>
       </div>
+
 
       {/* Trend + focus */}
       <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
@@ -186,7 +236,7 @@ function Dashboard() {
 
         <Surface className="p-6">
           <SectionEyebrow>Focus areas</SectionEyebrow>
-          {completed.length === 0 ? (
+          {scored.length === 0 ? (
             <p className="mt-4 text-sm text-muted-foreground">Complete a session to see your strongest areas and what to work on.</p>
           ) : (
             <div className="mt-4 space-y-5">
@@ -196,6 +246,9 @@ function Dashboard() {
           )}
         </Surface>
       </div>
+      </>
+      )}
+
 
       {/* Recent sessions */}
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr]">
