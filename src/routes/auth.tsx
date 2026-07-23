@@ -160,8 +160,12 @@ function AuthPage() {
               {mode === "signup" ? "Have an account? Sign in" : "New to PrepPilot? Create an account"}
             </button>
           </Surface>
+          <p className="mt-6 text-center text-[11px] text-muted-foreground/80">
+            Built by Divyam Madan &amp; Suhani Mahajan
+          </p>
         </div>
       </div>
+
     </div>
   );
 }
