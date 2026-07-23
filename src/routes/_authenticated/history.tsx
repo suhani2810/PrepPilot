@@ -116,14 +116,22 @@ function History() {
                         </div>
                       )}
                       {r.status === "completed" ? (
-                        <Link to="/interview/$interviewId/report" params={{ interviewId: r.id }}>
-                          <Button size="sm" variant="outline">Report</Button>
-                        </Link>
+                        <>
+                          <Link to="/interview/$interviewId/report" params={{ interviewId: r.id }}>
+                            <Button size="sm" variant="outline">Report</Button>
+                          </Link>
+                          {roadmapIds.has(r.id) && (
+                            <Link to="/interview/$interviewId/roadmap" params={{ interviewId: r.id }}>
+                              <Button size="sm" variant="ghost" className="hidden sm:inline-flex">Roadmap</Button>
+                            </Link>
+                          )}
+                        </>
                       ) : (
                         <Link to="/interview/$interviewId" params={{ interviewId: r.id }}>
                           <Button size="sm" variant="outline">Resume</Button>
                         </Link>
                       )}
+
                     </div>
                   </Surface>
                 ))}
