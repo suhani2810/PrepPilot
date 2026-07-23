@@ -199,7 +199,14 @@ function Report() {
           <ul className="mt-3 space-y-2 text-sm">
             {nextSteps.map((s, i) => <li key={i} className="flex gap-2"><span className="text-primary">→</span> {s}</li>)}
           </ul>
-          <Link to="/interview/new"><Button size="sm" className="mt-4 w-full bg-gradient-primary text-primary-foreground">Practice again</Button></Link>
+          <Link to="/interview/$interviewId/roadmap" params={{ interviewId }}>
+            <Button size="sm" className="mt-4 w-full bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90">
+              <Sparkles className="mr-1.5 h-3.5 w-3.5" /> View learning roadmap
+            </Button>
+          </Link>
+          <Link to="/interview/new">
+            <Button size="sm" variant="outline" className="mt-2 w-full">Practice again</Button>
+          </Link>
         </Surface>
       </div>
 
