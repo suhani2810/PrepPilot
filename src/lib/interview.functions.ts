@@ -372,3 +372,152 @@ export const endInterview = createServerFn({ method: "POST" })
 
     return { report };
   });
+
+// -------- 6. Learning Roadmap ---------------------------------------------
+// Deterministic pipeline:
+//   1. Pull interview + evaluations + candidate profile from DB (source of truth).
+//   2. Aggregate weaknesses, missing concepts, and the 2 weakest dimensions.
+//   3. Ask the AI ONCE to turn those *concrete* signals into an actionable plan.
+//   4. Persist under learning_roadmaps (one row per interview, unique).
+// Never regenerated unless the caller explicitly asks (force=true).
+type RoadmapStep = {
+  title: string;
+  why: string;
+  actions: string[];
+  resources: { label: string; kind: "article" | "video" | "practice" | "book" }[];
+  estimatedHours: number;
+};
+type Roadmap = {
+  summary: string;
+  targetRole: string;
+  priorityFocus: string[];        // ranked list of what to fix first
+  weakDimensions: string[];       // dimension names, weakest → less weak
+  steps: RoadmapStep[];           // ordered, prioritized
+  quickWins: string[];            // things achievable in <1 day
+  practiceInterviewPrompts: string[]; // suggestions for next mock
+  generatedAt: string;
+};
+
+export const getOrGenerateRoadmap = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { interviewId: string; force?: boolean }) =>
+    z.object({ interviewId: z.string().uuid(), force: z.boolean().optional() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    // Ownership + status check
+    const { data: interview, error: iErr } = await supabase.from("interviews")
+      .select("id, user_id, role, experience_level, interview_types, status, final_report, candidate_profile_id")
+      .eq("id", data.interviewId).single();
+    if (iErr || !interview) throw new Error("Interview not found");
+    if (interview.user_id !== userId) throw new Error("Forbidden");
+    if (interview.status !== "completed") throw new Error("Interview must be completed before generating a roadmap");
+
+    // Return cached if present, unless force
+    if (!data.force) {
+      const { data: existing } = await supabase.from("learning_roadmaps")
+        .select("content, updated_at").eq("interview_id", data.interviewId).maybeSingle();
+      if (existing?.content) {
+        return { roadmap: existing.content as unknown as Roadmap, cached: true };
+      }
+    }
+
+    const { data: evals } = await supabase.from("evaluations")
+      .select("weaknesses, missing_concepts, strengths, technical_accuracy, clarity, relevance, problem_solving, communication, overall_score")
+      .eq("interview_id", data.interviewId);
+    const evalsList = evals ?? [];
+    if (evalsList.length === 0) throw new Error("No evaluations to build a roadmap from");
+
+    const { data: cp } = interview.candidate_profile_id
+      ? await supabase.from("candidate_profiles").select("parsed").eq("id", interview.candidate_profile_id).maybeSingle()
+      : { data: null as { parsed: unknown } | null };
+
+    // Deterministic aggregation
+    const dimAvg = (k: "technical_accuracy" | "clarity" | "relevance" | "problem_solving" | "communication") =>
+      Math.round((evalsList.reduce((a, e) => a + Number(e[k] ?? 0), 0) / evalsList.length) * 10) / 10;
+    const dims = {
+      "Technical Accuracy": dimAvg("technical_accuracy"),
+      "Clarity": dimAvg("clarity"),
+      "Relevance": dimAvg("relevance"),
+      "Problem Solving": dimAvg("problem_solving"),
+      "Communication": dimAvg("communication"),
+    };
+    const weakDimensions = Object.entries(dims).sort((a, b) => a[1] - b[1]).slice(0, 3).map(([k]) => k);
+
+    // Rank weaknesses / missing concepts by frequency (real signal, not LLM guesses)
+    const rank = (items: string[]) => {
+      const m = new Map<string, number>();
+      for (const x of items) if (x?.trim()) m.set(x.trim(), (m.get(x.trim()) ?? 0) + 1);
+      return [...m.entries()].sort((a, b) => b[1] - a[1]).map(([k]) => k);
+    };
+    const rankedWeaknesses = rank(evalsList.flatMap((e) => (e.weaknesses as string[]) ?? [])).slice(0, 12);
+    const rankedMissing = rank(evalsList.flatMap((e) => (e.missing_concepts as string[]) ?? [])).slice(0, 12);
+    const rankedStrengths = rank(evalsList.flatMap((e) => (e.strengths as string[]) ?? [])).slice(0, 6);
+
+    const roadmap = await generateJson<Roadmap>({
+      system: "You are an expert engineering mentor. Turn concrete interview feedback into a prioritized, actionable study plan. Every step must reference a specific weakness or missing concept — no generic career advice.",
+      prompt: `Target role: ${interview.role} (${interview.experience_level ?? "unspecified"})
+Interview types: ${(interview.interview_types ?? []).join(", ")}
+Candidate profile (skills/projects/experience): ${JSON.stringify(cp?.parsed ?? {}).slice(0, 3000)}
+
+Dimension averages (0–10, lower = weaker):
+${Object.entries(dims).map(([k, v]) => `- ${k}: ${v}`).join("\n")}
+
+Weakest dimensions (priority order): ${weakDimensions.join(", ")}
+
+Recurring weaknesses (most frequent first):
+${rankedWeaknesses.map((w, i) => `${i + 1}. ${w}`).join("\n") || "(none)"}
+
+Recurring missing concepts (most frequent first):
+${rankedMissing.map((w, i) => `${i + 1}. ${w}`).join("\n") || "(none)"}
+
+Existing strengths (do not include as areas to improve):
+${rankedStrengths.join(", ") || "(none yet)"}
+
+Return JSON with this shape:
+{
+  "summary": string (2-3 sentences, honest, grounded in the data above),
+  "targetRole": "${interview.role}",
+  "priorityFocus": string[]   // 3-5 items, ranked by importance for this role
+  "weakDimensions": ${JSON.stringify(weakDimensions)},
+  "steps": [
+    {
+      "title": string,        // specific — e.g. "Master B-tree indexing" not "improve databases"
+      "why": string,          // reference the weakness/missing concept it addresses
+      "actions": string[],    // 3-5 concrete actions, doable this week
+      "resources": [{ "label": string, "kind": "article"|"video"|"practice"|"book" }],
+      "estimatedHours": number
+    }
+  ],   // 4-6 ordered steps, hardest gaps first
+  "quickWins": string[],      // 2-4 items achievable in under a day
+  "practiceInterviewPrompts": string[]  // 3-5 specific mock-question prompts to try in the next session
+}`,
+      fallback: {
+        summary: `Focus on ${weakDimensions.join(", ")} for your ${interview.role} interviews.`,
+        targetRole: interview.role,
+        priorityFocus: rankedWeaknesses.slice(0, 4),
+        weakDimensions,
+        steps: rankedWeaknesses.slice(0, 4).map((w) => ({
+          title: `Address: ${w}`,
+          why: "Recurring weakness identified in this interview.",
+          actions: ["Study the underlying concept.", "Solve 3 practice problems.", "Re-answer the related question aloud."],
+          resources: [],
+          estimatedHours: 3,
+        })),
+        quickWins: rankedMissing.slice(0, 3),
+        practiceInterviewPrompts: [`Re-run ${interview.role} mock focused on ${weakDimensions[0] ?? "core skills"}.`],
+      },
+      timeoutMs: 60_000,
+    });
+
+    roadmap.generatedAt = new Date().toISOString();
+    roadmap.weakDimensions = weakDimensions;
+    roadmap.targetRole = interview.role;
+
+    // Upsert (unique on interview_id)
+    const { error: upErr } = await supabase.from("learning_roadmaps")
+      .upsert({ user_id: userId, interview_id: data.interviewId, content: asJson(roadmap) }, { onConflict: "interview_id" });
+    if (upErr) throw new Error(`Failed to save roadmap: ${upErr.message}`);
+
+    return { roadmap, cached: false };
+  });
