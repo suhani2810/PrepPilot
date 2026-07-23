@@ -236,7 +236,7 @@ function Dashboard() {
 
         <Surface className="p-6">
           <SectionEyebrow>Focus areas</SectionEyebrow>
-          {completed.length === 0 ? (
+          {scored.length === 0 ? (
             <p className="mt-4 text-sm text-muted-foreground">Complete a session to see your strongest areas and what to work on.</p>
           ) : (
             <div className="mt-4 space-y-5">
@@ -246,6 +246,9 @@ function Dashboard() {
           )}
         </Surface>
       </div>
+      </>
+      )}
+
 
       {/* Recent sessions */}
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr]">
