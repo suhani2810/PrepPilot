@@ -2,26 +2,39 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { startInterview } from "@/lib/interview.functions";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { SectionEyebrow, Surface } from "@/components/prep/primitives";
+import { Clock, Target, Layers, Sparkles, ArrowRight, Rocket } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/interview/new")({
-  head: () => ({ meta: [{ title: "New Interview — PrepPilot" }] }),
+  head: () => ({
+    meta: [
+      { title: "Configure Interview — PrepPilot" },
+      { name: "description", content: "Configure your next adaptive AI interview — role, level, type, and duration." },
+    ],
+  }),
   component: NewInterview,
 });
 
 const ROLES = ["Software Development", "Frontend", "Backend", "Full Stack", "AI/ML", "Data Science", "HR/Behavioral", "Custom"];
 const LEVELS = ["Intern", "Entry", "Junior", "Mid", "Senior", "Staff", "Principal"];
+const TYPES = [
+  { key: "Technical", desc: "Coding & systems reasoning" },
+  { key: "Resume", desc: "Deep-dive on your work" },
+  { key: "Behavioral", desc: "Situations & judgment" },
+];
+const DURATIONS = [15, 30, 45, 60];
 
 function NewInterview() {
   const nav = useNavigate();
   const startFn = useServerFn(startInterview);
+  const [step, setStep] = useState<0 | 1>(0);
   const [role, setRole] = useState("Software Development");
   const [customRole, setCustomRole] = useState("");
   const [level, setLevel] = useState("Mid");
@@ -30,15 +43,13 @@ function NewInterview() {
   const [duration, setDuration] = useState(30);
   const [busy, setBusy] = useState(false);
 
-  const toggle = (t: string) =>
-    setTypes((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
+  const finalRole = role === "Custom" ? (customRole.trim() || "Custom") : role;
+  const toggleType = (t: string) => setTypes((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const start = async () => {
     if (!types.length) return toast.error("Pick at least one interview type");
     setBusy(true);
     try {
-      const finalRole = role === "Custom" ? (customRole.trim() || "Custom") : role;
       const { interviewId } = await startFn({
         data: {
           role: finalRole, experienceLevel: level, interviewTypes: types,
@@ -48,63 +59,195 @@ function NewInterview() {
       nav({ to: "/interview/$interviewId", params: { interviewId } });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to start");
-    } finally {
-      setBusy(false);
-    }
+    } finally { setBusy(false); }
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-10">
-      <p className="text-sm text-muted-foreground">Configure</p>
-      <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight">New interview</h1>
+    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <SectionEyebrow>Configure simulation</SectionEyebrow>
+          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-[2.5rem]">New interview</h1>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <StepDot active={step >= 0} label="Configure" />
+          <span className="h-px w-8 bg-border" />
+          <StepDot active={step >= 1} label="Review" />
+        </div>
+      </div>
 
-      <Card className="mt-6 border-border/60 bg-card/60 p-6">
-        <form onSubmit={submit} className="space-y-5">
-          <div>
-            <Label>Target role</Label>
-            <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>{ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
-            </Select>
-            {role === "Custom" && (
-              <Input className="mt-2" placeholder="Describe the role" value={customRole} onChange={(e) => setCustomRole(e.target.value)} />
-            )}
+      {step === 0 && (
+        <Surface elevated className="mt-6 p-6 sm:p-8">
+          <div className="space-y-7">
+            {/* Role */}
+            <Field label="Target role" icon={<Target className="h-3.5 w-3.5" />}>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
+              </Select>
+              {role === "Custom" && (
+                <Input className="mt-2" placeholder="Describe the role (e.g. Senior Platform Engineer at a fintech)" value={customRole} onChange={(e) => setCustomRole(e.target.value)} />
+              )}
+            </Field>
+
+            {/* Level */}
+            <Field label="Experience level" icon={<Layers className="h-3.5 w-3.5" />}>
+              <div className="flex flex-wrap gap-2">
+                {LEVELS.map((l) => (
+                  <Chip key={l} active={level === l} onClick={() => setLevel(l)}>{l}</Chip>
+                ))}
+              </div>
+            </Field>
+
+            {/* Type */}
+            <Field label="Interview type" icon={<Sparkles className="h-3.5 w-3.5" />} hint="Choose one or more">
+              <div className="grid gap-2 sm:grid-cols-3">
+                {TYPES.map((t) => {
+                  const active = types.includes(t.key);
+                  return (
+                    <button
+                      key={t.key}
+                      type="button"
+                      onClick={() => toggleType(t.key)}
+                      className={cn(
+                        "rounded-lg border p-3 text-left transition",
+                        active
+                          ? "border-primary/50 bg-primary/5 shadow-ring"
+                          : "border-border/70 bg-card/60 hover:border-primary/30",
+                      )}
+                    >
+                      <p className="text-sm font-medium">{t.key}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{t.desc}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </Field>
+
+            {/* Duration */}
+            <Field label="Duration" icon={<Clock className="h-3.5 w-3.5" />}>
+              <div className="flex flex-wrap items-center gap-2">
+                {DURATIONS.map((d) => (
+                  <Chip key={d} active={duration === d} onClick={() => setDuration(d)}>{d} min</Chip>
+                ))}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Custom</span>
+                  <Input
+                    type="number" min={5} max={180}
+                    value={duration}
+                    onChange={(e) => setDuration(Number(e.target.value) || 30)}
+                    className="w-20"
+                  />
+                </div>
+              </div>
+            </Field>
+
+            {/* JD */}
+            <Field label="Job description" hint="Optional — makes questions sharper">
+              <Textarea rows={4} value={jd} onChange={(e) => setJd(e.target.value)} placeholder="Paste the JD to tailor questions to a specific opening." />
+            </Field>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                onClick={() => setStep(1)}
+                disabled={!types.length}
+                className="bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
+              >
+                Review <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </div>
+        </Surface>
+      )}
 
-          <div>
-            <Label>Experience level</Label>
-            <Select value={level} onValueChange={setLevel}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-              <SelectContent>{LEVELS.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label>Interview type</Label>
-            <div className="mt-2 flex flex-wrap gap-4">
-              {["Technical", "Resume", "Behavioral"].map((t) => (
-                <label key={t} className="flex items-center gap-2 text-sm">
-                  <Checkbox checked={types.includes(t)} onCheckedChange={() => toggle(t)} /> {t}
-                </label>
-              ))}
+      {step === 1 && (
+        <Surface elevated className="mt-6 p-6 sm:p-8">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-primary text-primary-foreground shadow-glow">
+              <Rocket className="h-4 w-4" />
+            </span>
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Ready to start</p>
+              <h2 className="font-display text-2xl font-semibold">Simulation brief</h2>
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="jd">Job description (optional)</Label>
-            <Textarea id="jd" rows={5} value={jd} onChange={(e) => setJd(e.target.value)} placeholder="Paste a JD to further tailor questions" />
+          <dl className="mt-6 grid gap-3 sm:grid-cols-2">
+            <ReviewRow label="Target role" value={finalRole} />
+            <ReviewRow label="Experience" value={level} />
+            <ReviewRow label="Types" value={types.join(" · ")} />
+            <ReviewRow label="Duration" value={`${duration} minutes`} />
+            {jd && <ReviewRow label="Job description" value={`${jd.slice(0, 140)}${jd.length > 140 ? "…" : ""}`} className="sm:col-span-2" />}
+          </dl>
+
+          <div className="mt-6 rounded-lg border border-border/70 bg-secondary/40 p-4 text-xs text-muted-foreground">
+            <p className="font-medium text-foreground">What happens next</p>
+            <ul className="mt-1.5 space-y-1">
+              <li>· We build an interview plan tailored to your resume and the settings above.</li>
+              <li>· You enter a focused interview room; leaving fullscreen or the tab ends the session.</li>
+              <li>· Each answer is scored — a full report appears when you finish or time runs out.</li>
+            </ul>
           </div>
 
-          <div>
-            <Label htmlFor="dur">Duration (minutes)</Label>
-            <Input id="dur" type="number" min={5} max={180} value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
+          <div className="mt-6 flex flex-wrap justify-between gap-2">
+            <Button variant="outline" onClick={() => setStep(0)} disabled={busy}>Back</Button>
+            <Button
+              onClick={start}
+              disabled={busy}
+              className="bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
+            >
+              {busy ? "Preparing your interviewer…" : "Start Interview"} <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
-
-          <Button type="submit" disabled={busy} className="w-full bg-gradient-primary text-white hover:opacity-90">
-            {busy ? "Preparing your interviewer…" : "Start Interview"}
-          </Button>
-        </form>
-      </Card>
+        </Surface>
+      )}
     </div>
+  );
+}
+
+function Field({ label, icon, hint, children }: { label: string; icon?: React.ReactNode; hint?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <Label className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          {icon} {label}
+        </Label>
+        {hint && <span className="text-[10px] text-muted-foreground">{hint}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full border px-3.5 py-1.5 text-xs font-medium transition",
+        active ? "border-primary/50 bg-primary/10 text-primary" : "border-border/70 bg-card/60 text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ReviewRow({ label, value, className }: { label: string; value: string; className?: string }) {
+  return (
+    <div className={cn("rounded-lg border border-border/60 bg-secondary/30 px-4 py-3", className)}>
+      <dt className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">{label}</dt>
+      <dd className="mt-1 text-sm">{value}</dd>
+    </div>
+  );
+}
+
+function StepDot({ active, label }: { active: boolean; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className={cn("h-1.5 w-1.5 rounded-full", active ? "bg-primary" : "bg-border")} />
+      <span className={active ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+    </span>
   );
 }
