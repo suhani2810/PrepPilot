@@ -24,18 +24,26 @@ type Row = {
 
 function History() {
   const [rows, setRows] = useState<Row[] | null>(null);
+  const [roadmapIds, setRoadmapIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) { setRows([]); return; }
-      const { data } = await supabase.from("interviews")
-        .select("id,role,status,overall_score,readiness_score,started_at,completed_at,experience_level,interview_types")
-        .eq("user_id", u.user.id)
-        .order("started_at", { ascending: false });
+      const [{ data }, { data: rms }] = await Promise.all([
+        supabase.from("interviews")
+          .select("id,role,status,overall_score,readiness_score,started_at,completed_at,experience_level,interview_types")
+          .eq("user_id", u.user.id)
+          .order("started_at", { ascending: false }),
+        // Only surface a "Roadmap" affordance for interviews that already have one saved;
+        // do NOT generate roadmaps merely by opening History.
+        supabase.from("learning_roadmaps").select("interview_id").eq("user_id", u.user.id),
+      ]);
       setRows((data ?? []) as Row[]);
+      setRoadmapIds(new Set((rms ?? []).map((r) => r.interview_id as string)));
     })();
   }, []);
+
 
   if (rows === null) {
     return (
