@@ -120,10 +120,16 @@ function Report() {
           <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-[2.5rem]">{iv.role}</h1>
           {iv.completed_at && <p className="mt-1 text-sm text-muted-foreground">Completed {new Date(iv.completed_at).toLocaleString()}</p>}
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link to="/dashboard"><Button variant="outline">Dashboard</Button></Link>
-          <Link to="/interview/new"><Button className="bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90">New Interview <ArrowRight className="ml-2 h-3.5 w-3.5" /></Button></Link>
+          <Link to="/history"><Button variant="outline">History</Button></Link>
+          <Link to="/interview/$interviewId/roadmap" params={{ interviewId }}>
+            <Button className="bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90">
+              <Sparkles className="mr-1.5 h-3.5 w-3.5" /> View Learning Roadmap <ArrowRight className="ml-2 h-3.5 w-3.5" />
+            </Button>
+          </Link>
         </div>
+
       </div>
 
       {/* Hero */}
