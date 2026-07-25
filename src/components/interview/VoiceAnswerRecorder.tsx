@@ -285,10 +285,13 @@ export function VoiceAnswerRecorder({
           try {
             const formData = new FormData();
             formData.append("audio", audioFile);
+            const { data: sessionData } = await supabase.auth.getSession();
+            const accessToken = sessionData.session?.access_token;
             const response = await fetch("/api/transcribe", {
               method: "POST",
               body: formData,
               signal: controller.signal,
+              headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
             });
             const responseText = await response.text();
             let payload: { transcript?: unknown; error?: string };
