@@ -10,7 +10,15 @@ const ALLOWED_AUDIO_MIME_TYPES = new Set([
   "audio/x-m4a",
   "audio/m4a",
 ]);
-const ALLOWED_AUDIO_EXTENSIONS = new Set([".webm", ".ogg", ".mp3", ".mpeg", ".mp4", ".wav", ".m4a"]);
+const ALLOWED_AUDIO_EXTENSIONS = new Set([
+  ".webm",
+  ".ogg",
+  ".mp3",
+  ".mpeg",
+  ".mp4",
+  ".wav",
+  ".m4a",
+]);
 
 export type TranscriptionResponse = {
   transcript: string;
@@ -44,14 +52,15 @@ function isAcceptedAudioFile(file: File) {
 
 function normalizeTranscriptResponse(data: any): TranscriptionResponse {
   const transcript = typeof data.text === "string" ? data.text : "";
-  const durationSeconds = typeof data.duration === "number"
-    ? data.duration
-    : typeof data.duration_seconds === "number"
-    ? data.duration_seconds
-    : null;
+  const durationSeconds =
+    typeof data.duration === "number"
+      ? data.duration
+      : typeof data.duration_seconds === "number"
+        ? data.duration_seconds
+        : null;
   const language = typeof data.language === "string" ? data.language : null;
   const segments = Array.isArray(data.segments)
-    ? data.segments.map((segment) => ({
+    ? data.segments.map((segment: any) => ({
         id: typeof segment.id === "number" ? segment.id : undefined,
         start: typeof segment.start === "number" ? segment.start : 0,
         end: typeof segment.end === "number" ? segment.end : 0,
@@ -59,7 +68,7 @@ function normalizeTranscriptResponse(data: any): TranscriptionResponse {
       }))
     : [];
   const words = Array.isArray(data.words)
-    ? data.words.map((word) => ({
+    ? data.words.map((word: any) => ({
         word: typeof word.word === "string" ? word.word : "",
         start: typeof word.start === "number" ? word.start : 0,
         end: typeof word.end === "number" ? word.end : 0,

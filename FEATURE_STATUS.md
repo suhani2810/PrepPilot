@@ -5,26 +5,26 @@ Anything not on the "Implemented" list is not shipped.
 
 ## ✅ Implemented and demo-ready
 
-| Feature                               | Where                                                     |
-| ------------------------------------- | --------------------------------------------------------- |
-| Email/password auth (sign up + in)    | `src/routes/auth.tsx`, Supabase Auth                      |
-| Auth-gated app routes                 | `src/routes/_authenticated/route.tsx`                     |
-| Landing page                          | `src/routes/index.tsx`                                    |
-| Resume PDF upload → private storage   | `resumes` bucket (RLS, owner-scoped)                      |
-| AI resume extraction → candidate JSON | `src/lib/interview.functions.ts` (`analyzeResume`)        |
-| Editable candidate profile UI        | `src/routes/_authenticated/resume.tsx`                    |
-| Interview configuration              | `src/routes/_authenticated/interview.new.tsx`             |
-| Adaptive interview engine             | `submitAnswer` in `src/lib/interview.functions.ts`        |
+| Feature                               | Where                                                                                     |
+| ------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Email/password auth (sign up + in)    | `src/routes/auth.tsx`, Supabase Auth                                                      |
+| Auth-gated app routes                 | `src/routes/_authenticated/route.tsx`                                                     |
+| Landing page                          | `src/routes/index.tsx`                                                                    |
+| Resume PDF upload → private storage   | `resumes` bucket (RLS, owner-scoped)                                                      |
+| AI resume extraction → candidate JSON | `src/lib/interview.functions.ts` (`analyzeResume`)                                        |
+| Editable candidate profile UI         | `src/routes/_authenticated/resume.tsx`                                                    |
+| Interview configuration               | `src/routes/_authenticated/interview.new.tsx`                                             |
+| Adaptive interview engine             | `submitAnswer` in `src/lib/interview.functions.ts`                                        |
 | 5-dimension answer evaluation         | Accuracy, Clarity, Relevance, Problem Solving, Communication — persisted to `evaluations` |
-| Real-time countdown + auto-end        | `src/routes/_authenticated/interview.$interviewId.index.tsx` |
-| Anti-cheat (tab-blur, fullscreen)     | same file                                                 |
-| Final report with radar + per-Q view  | `src/routes/_authenticated/interview.$interviewId.report.tsx` |
-| Personalized learning roadmap         | `learning_roadmaps` table + `interview.$interviewId.roadmap.tsx` |
-| Dashboard analytics (real data only)  | `src/routes/_authenticated/dashboard.tsx`                 |
-| History timeline                      | `src/routes/_authenticated/history.tsx`                   |
-| Provider-agnostic AI adapter          | `src/lib/ai.server.ts` (Groq primary, OpenRouter fallback) |
-| Full RLS + storage policies           | `supabase/migrations/`                                    |
-| Light/dark theme                      | `src/styles.css`                                          |
+| Real-time countdown + auto-end        | `src/routes/_authenticated/interview.$interviewId.index.tsx`                              |
+| Anti-cheat (tab-blur, fullscreen)     | same file                                                                                 |
+| Final report with radar + per-Q view  | `src/routes/_authenticated/interview.$interviewId.report.tsx`                             |
+| Personalized learning roadmap         | `learning_roadmaps` table + `interview.$interviewId.roadmap.tsx`                          |
+| Dashboard analytics (real data only)  | `src/routes/_authenticated/dashboard.tsx`                                                 |
+| History timeline                      | `src/routes/_authenticated/history.tsx`                                                   |
+| Provider-agnostic AI adapter          | `src/lib/ai.server.ts` (Groq primary, OpenRouter fallback)                                |
+| Full RLS + storage policies           | `supabase/migrations/`                                                                    |
+| Light/dark theme                      | `src/styles.css`                                                                          |
 
 ### Readiness score methodology
 

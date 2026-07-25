@@ -29,14 +29,17 @@ export function PrepNav({ authed }: { authed: boolean }) {
           {authed && (
             <div className="hidden items-center gap-0.5 rounded-full border border-border/60 bg-card/60 p-0.5 sm:flex">
               {NAV_LINKS.map((l) => {
-                const active = pathname === l.to || (l.to !== "/dashboard" && pathname.startsWith(l.to));
+                const active =
+                  pathname === l.to || (l.to !== "/dashboard" && pathname.startsWith(l.to));
                 return (
                   <Link
                     key={l.to}
                     to={l.to}
                     className={cn(
                       "rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors",
-                      active ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground",
+                      active
+                        ? "bg-secondary text-foreground"
+                        : "text-muted-foreground hover:text-foreground",
                     )}
                   >
                     {l.label}
@@ -48,12 +51,21 @@ export function PrepNav({ authed }: { authed: boolean }) {
           <div className="mx-1 hidden h-5 w-px bg-border sm:block" />
           <ThemeToggle />
           {authed ? (
-            <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
+            <Button variant="ghost" size="sm" onClick={signOut}>
+              Sign out
+            </Button>
           ) : (
             <>
-              <Link to="/auth"><Button variant="ghost" size="sm">Sign in</Button></Link>
+              <Link to="/auth">
+                <Button variant="ghost" size="sm">
+                  Sign in
+                </Button>
+              </Link>
               <Link to="/auth" search={{ mode: "signup" }}>
-                <Button size="sm" className="bg-gradient-primary text-primary-foreground shadow-soft hover:opacity-90">
+                <Button
+                  size="sm"
+                  className="bg-gradient-primary text-primary-foreground shadow-soft hover:opacity-90"
+                >
                   Get started
                 </Button>
               </Link>

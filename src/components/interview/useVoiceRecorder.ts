@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type RecordingState = {
   isSupported: boolean;
+  supportChecked: boolean;
+  supportError: string | null;
   isRecording: boolean;
   hasRecording: boolean;
   elapsedSeconds: number;
@@ -58,13 +60,15 @@ function formatMediaError(error: unknown) {
     switch (error.name) {
       case "NotAllowedError":
       case "PermissionDeniedError":
-        return "Microphone permission denied. Allow access and try again.";
+        return "Microphone access was denied. Allow microphone access in your browser and try again.";
       case "NotFoundError":
       case "DevicesNotFoundError":
-        return "No microphone found. Please connect a microphone and try again.";
+        return "No microphone was found. Connect a microphone and try again.";
       case "NotReadableError":
       case "TrackStartError":
-        return "Cannot access the microphone. Check your device settings.";
+        return "The microphone is unavailable right now. Check your device settings and try again.";
+      case "AbortError":
+        return "Recording was interrupted. Please try again.";
       default:
         return error.message || "Recording failed. Please try again.";
     }
@@ -82,13 +86,9 @@ export type UseVoiceRecorderOptions = {
 };
 
 export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOptions = {}) {
-  const [isSupported] = useState<boolean>(() =>
-    typeof window !== "undefined" &&
-    typeof navigator !== "undefined" &&
-    !!navigator.mediaDevices &&
-    typeof navigator.mediaDevices.getUserMedia === "function" &&
-    typeof MediaRecorder !== "undefined"
-  );
+  const [isSupported, setIsSupported] = useState(false);
+  const [supportChecked, setSupportChecked] = useState(false);
+  const [supportError, setSupportError] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [hasRecording, setHasRecording] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -101,11 +101,30 @@ export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOpt
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
+  const startInProgressRef = useRef(false);
+  const startRequestRef = useRef(0);
   const startTimeRef = useRef<number>(0);
   const previewUrlRef = useRef<string | null>(null);
   const mimeTypeRef = useRef<string>("");
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
+    const secure = window.isSecureContext;
+    const hasMediaDevices =
+      !!navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === "function";
+    const hasRecorder = typeof MediaRecorder !== "undefined";
+    const supported = secure && hasMediaDevices && hasRecorder;
+    setIsSupported(supported);
+    setSupportError(
+      supported
+        ? null
+        : !secure
+          ? "Microphone recording requires a secure page. Open PrepPilot using https:// or http://localhost, not a local-network HTTP address."
+          : !hasMediaDevices
+            ? "Microphone access is unavailable in this embedded browser or preview. Open PrepPilot in a normal Chrome or Edge tab and allow microphone access for the site."
+            : "This browser does not provide the MediaRecorder API. Open PrepPilot in a current version of Chrome, Edge, Firefox, or Safari.",
+    );
+    setSupportChecked(true);
     mimeTypeRef.current = chooseSupportedMimeType();
   }, []);
 
@@ -137,7 +156,23 @@ export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOpt
     recorderRef.current = null;
   }, [clearTimer, stopStreamTracks]);
 
+  const discardActiveRecorder = useCallback(() => {
+    const recorder = recorderRef.current;
+    if (!recorder || recorder.state === "inactive") return;
+    recorder.ondataavailable = null;
+    recorder.onstop = null;
+    recorder.onerror = null;
+    try {
+      recorder.stop();
+    } catch {
+      /* The stream cleanup below still releases the microphone. */
+    }
+  }, []);
+
   const reset = useCallback(() => {
+    startRequestRef.current += 1;
+    startInProgressRef.current = false;
+    discardActiveRecorder();
     cleanupRecording();
     setIsRecording(false);
     setElapsedSeconds(0);
@@ -146,20 +181,25 @@ export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOpt
     setRecordingDurationSeconds(null);
     setHasRecording(false);
     setPreview(null);
-  }, [cleanupRecording, setPreview]);
+  }, [cleanupRecording, discardActiveRecorder, setPreview]);
 
   useEffect(() => {
     onRecordingStateChange?.(isRecording);
   }, [isRecording, onRecordingStateChange]);
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
+      isMountedRef.current = false;
+      startRequestRef.current += 1;
+      startInProgressRef.current = false;
+      discardActiveRecorder();
       cleanupRecording();
       if (previewUrlRef.current) {
         URL.revokeObjectURL(previewUrlRef.current);
       }
     };
-  }, [cleanupRecording]);
+  }, [cleanupRecording, discardActiveRecorder]);
 
   const createFileFromBlob = useCallback((blob: Blob) => {
     const extension = blob.type.includes("ogg") ? "ogg" : "webm";
@@ -169,10 +209,12 @@ export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOpt
   }, []);
 
   const start = useCallback(async () => {
-    if (!isSupported || isRecording) {
-      return;
+    if (startInProgressRef.current || !isSupported || isRecording) {
+      return false;
     }
 
+    const requestId = ++startRequestRef.current;
+    startInProgressRef.current = true;
     setError(null);
     setRecordedFile(null);
     setRecordingDurationSeconds(null);
@@ -180,9 +222,53 @@ export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOpt
     setPreview(null);
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (
+        typeof window === "undefined" ||
+        typeof navigator === "undefined" ||
+        !navigator.mediaDevices?.getUserMedia
+      ) {
+        throw new DOMException(
+          "Media devices are unavailable in this browser.",
+          "NotSupportedError",
+        );
+      }
+
+      const mediaRequest = navigator.mediaDevices.getUserMedia({ audio: true });
+      void mediaRequest
+        .then((lateStream) => {
+          if (!isMountedRef.current || startRequestRef.current !== requestId) {
+            lateStream.getTracks().forEach((track) => track.stop());
+          }
+        })
+        .catch(() => {
+          /* The awaited request below handles the visible error. */
+        });
+
+      let timeoutId: number | undefined;
+      const timeout = new Promise<MediaStream>((_, reject) => {
+        timeoutId = window.setTimeout(() => {
+          reject(
+            new Error(
+              "Microphone access is taking too long. Check the browser's site permissions, then retry.",
+            ),
+          );
+        }, 12_000);
+      });
+      let stream: MediaStream;
+      try {
+        stream = await Promise.race([mediaRequest, timeout]);
+      } finally {
+        if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      }
+
+      if (!isMountedRef.current || startRequestRef.current !== requestId) {
+        stream.getTracks().forEach((track) => track.stop());
+        return false;
+      }
       const mimeType = mimeTypeRef.current;
-      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      const recorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream);
       chunksRef.current = [];
 
       recorder.ondataavailable = (event: BlobEvent) => {
@@ -192,7 +278,11 @@ export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOpt
       };
 
       recorder.onerror = (event) => {
-        setError(event.error ? formatMediaError(event.error) : "Recording failed. Please try again.");
+        setError(
+          event.error ? formatMediaError(event.error) : "Recording failed. Please try again.",
+        );
+        setIsRecording(false);
+        cleanupRecording();
       };
 
       recorder.onstop = () => {
@@ -205,8 +295,8 @@ export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOpt
           return;
         }
 
-        const file = createFileFromBlob(blob);
         const durationSeconds = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 1000));
+        const file = createFileFromBlob(blob);
         setRecordedFile(file);
         setRecordingDurationSeconds(durationSeconds);
         setHasRecording(true);
@@ -217,21 +307,39 @@ export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOpt
       recorderRef.current = recorder;
       streamRef.current = stream;
       startTimeRef.current = Date.now();
+      recorder.start();
       setElapsedSeconds(0);
       setIsRecording(true);
 
       timerRef.current = window.setInterval(() => {
         setElapsedSeconds(Math.max(0, Math.round((Date.now() - startTimeRef.current) / 1000)));
       }, 250);
-
-      recorder.start();
+      return true;
     } catch (error) {
+      if (startRequestRef.current !== requestId || !isMountedRef.current) return false;
+      startInProgressRef.current = false;
+      startRequestRef.current += 1;
       setError(formatMediaError(error));
       stopStreamTracks();
       cleanupRecording();
       setIsRecording(false);
+      return false;
+    } finally {
+      if (startRequestRef.current === requestId) startInProgressRef.current = false;
     }
-  }, [cleanupRecording, createFileFromBlob, isRecording, isSupported, stopStreamTracks]);
+  }, [
+    cleanupRecording,
+    createFileFromBlob,
+    isRecording,
+    isSupported,
+    setPreview,
+    stopStreamTracks,
+  ]);
+
+  const cancelStart = useCallback(() => {
+    startRequestRef.current += 1;
+    startInProgressRef.current = false;
+  }, []);
 
   const stop = useCallback(() => {
     if (!isRecording || !recorderRef.current) {
@@ -240,15 +348,20 @@ export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOpt
 
     try {
       recorderRef.current.stop();
-    } catch {
-      // ignore stop failures
+    } catch (error) {
+      setError(formatMediaError(error));
+      stopStreamTracks();
+      cleanupRecording();
+      setIsRecording(false);
     }
 
     setIsRecording(false);
-  }, [isRecording]);
+  }, [cleanupRecording, isRecording, stopStreamTracks]);
 
   return {
     isSupported,
+    supportChecked,
+    supportError,
     isRecording,
     hasRecording,
     elapsedSeconds,
@@ -257,10 +370,12 @@ export function useVoiceRecorder({ onRecordingStateChange }: UseVoiceRecorderOpt
     recordingDurationSeconds,
     previewUrl,
     start,
+    cancelStart,
     stop,
     reset,
   } as RecordingState & {
-    start: () => Promise<void>;
+    start: () => Promise<boolean>;
+    cancelStart: () => void;
     stop: () => void;
     reset: () => void;
   };

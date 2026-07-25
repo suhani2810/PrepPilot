@@ -78,10 +78,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "PrepPilot — From Resume to Ready" },
-      { name: "description", content: "Adaptive AI mock interviews personalized to your resume. Score, track, and improve your interview readiness." },
+      {
+        name: "description",
+        content:
+          "Adaptive AI mock interviews personalized to your resume. Score, track, and improve your interview readiness.",
+      },
       { name: "author", content: "PrepPilot" },
       { property: "og:title", content: "PrepPilot — From Resume to Ready" },
-      { property: "og:description", content: "Adaptive AI mock interviews personalized to your resume." },
+      {
+        property: "og:description",
+        content: "Adaptive AI mock interviews personalized to your resume.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },

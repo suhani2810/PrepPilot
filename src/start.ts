@@ -1,15 +1,19 @@
-import { createStart, createMiddleware } from "@tanstack/react-start";
+import { createCsrfMiddleware, createMiddleware, createStart } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
-const errorMiddleware = createMiddleware().server(async ({ next }) => {
+const errorMiddleware = createMiddleware().server(async ({ next, handlerType }) => {
   try {
     return await next();
   } catch (error) {
     if (error != null && typeof error === "object" && "statusCode" in error) {
       throw error;
     }
+    // Server functions are RPC calls. Returning an HTML error page here makes
+    // the client treat the call as a response with no result, which hides the
+    // actual error and can leave actions appearing to do nothing.
+    if (handlerType === "serverFn") throw error;
     console.error(error);
     return new Response(renderErrorPage(), {
       status: 500,
@@ -18,7 +22,11 @@ const errorMiddleware = createMiddleware().server(async ({ next }) => {
   }
 });
 
+const csrfMiddleware = createCsrfMiddleware({
+  filter: (ctx) => ctx.handlerType === "serverFn",
+});
+
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware],
+  requestMiddleware: [csrfMiddleware, errorMiddleware],
 }));

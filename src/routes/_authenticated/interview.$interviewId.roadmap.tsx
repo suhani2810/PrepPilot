@@ -4,7 +4,17 @@ import { useEffect, useState } from "react";
 import { getOrGenerateRoadmap } from "@/lib/interview.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, BookOpen, CheckCircle2, Clock, Lightbulb, RefreshCw, Sparkles, Target, Video } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  Lightbulb,
+  RefreshCw,
+  Sparkles,
+  Target,
+  Video,
+} from "lucide-react";
 import { EmptyState, SectionEyebrow, Skeleton, Surface } from "@/components/prep/primitives";
 import { toast } from "sonner";
 
@@ -12,21 +22,32 @@ export const Route = createFileRoute("/_authenticated/interview/$interviewId/roa
   head: () => ({
     meta: [
       { title: "Learning Roadmap — PrepPilot" },
-      { name: "description", content: "Your personalized study plan built from real interview weaknesses — ordered, actionable, resume-aware." },
+      {
+        name: "description",
+        content:
+          "Your personalized study plan built from real interview weaknesses — ordered, actionable, resume-aware.",
+      },
     ],
   }),
   component: RoadmapPage,
 });
 
 type Step = {
-  title: string; why: string; actions: string[];
+  title: string;
+  why: string;
+  actions: string[];
   resources: { label: string; kind: "article" | "video" | "practice" | "book" }[];
   estimatedHours: number;
 };
 type Roadmap = {
-  summary: string; targetRole: string; priorityFocus: string[];
-  weakDimensions: string[]; steps: Step[]; quickWins: string[];
-  practiceInterviewPrompts: string[]; generatedAt: string;
+  summary: string;
+  targetRole: string;
+  priorityFocus: string[];
+  weakDimensions: string[];
+  steps: Step[];
+  quickWins: string[];
+  practiceInterviewPrompts: string[];
+  generatedAt: string;
 };
 
 function RoadmapPage() {
@@ -39,7 +60,8 @@ function RoadmapPage() {
   const fetchFn = useServerFn(getOrGenerateRoadmap);
 
   const load = async (force = false) => {
-    if (force) setRegenerating(true); else setLoading(true);
+    if (force) setRegenerating(true);
+    else setLoading(true);
     setError(null);
     try {
       const res = await fetchFn({ data: { interviewId, force } });
@@ -50,11 +72,14 @@ function RoadmapPage() {
       setError(msg);
       if (force) toast.error(msg);
     } finally {
-      setLoading(false); setRegenerating(false);
+      setLoading(false);
+      setRegenerating(false);
     }
   };
 
-  useEffect(() => { load(false); /* eslint-disable-next-line */ }, [interviewId]);
+  useEffect(() => {
+    load(false); /* eslint-disable-next-line */
+  }, [interviewId]);
 
   if (loading) return <RoadmapSkeleton />;
 
@@ -66,11 +91,18 @@ function RoadmapPage() {
           className="mt-8"
           icon={<BookOpen className="h-5 w-5" />}
           title="No roadmap available"
-          description={error ?? "Complete an interview with at least one answered question to generate a personalized roadmap."}
+          description={
+            error ??
+            "Complete an interview with at least one answered question to generate a personalized roadmap."
+          }
           action={
             <div className="flex justify-center gap-2">
-              <Link to="/interview/$interviewId/report" params={{ interviewId }}><Button variant="outline">Back to report</Button></Link>
-              <Link to="/dashboard"><Button className="bg-gradient-primary text-primary-foreground">Dashboard</Button></Link>
+              <Link to="/interview/$interviewId/report" params={{ interviewId }}>
+                <Button variant="outline">Back to report</Button>
+              </Link>
+              <Link to="/dashboard">
+                <Button className="bg-gradient-primary text-primary-foreground">Dashboard</Button>
+              </Link>
             </div>
           }
         />
@@ -91,18 +123,15 @@ function RoadmapPage() {
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{roadmap.summary}</p>
           <p className="mt-2 text-[11px] uppercase tracking-widest text-muted-foreground">
-            {cached ? "Loaded from your saved plan" : "Freshly generated"} · {new Date(roadmap.generatedAt).toLocaleString()}
+            {cached ? "Loaded from your saved plan" : "Freshly generated"} ·{" "}
+            {new Date(roadmap.generatedAt).toLocaleString()}
           </p>
         </div>
         <div className="flex gap-2">
           <Link to="/interview/$interviewId/report" params={{ interviewId }}>
             <Button variant="outline">Back to report</Button>
           </Link>
-          <Button
-            variant="outline"
-            onClick={() => load(true)}
-            disabled={regenerating}
-          >
+          <Button variant="outline" onClick={() => load(true)} disabled={regenerating}>
             <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${regenerating ? "animate-spin" : ""}`} />
             {regenerating ? "Regenerating…" : "Regenerate"}
           </Button>
@@ -127,7 +156,9 @@ function RoadmapPage() {
                 </li>
               ))}
             </ol>
-          ) : <p className="mt-3 text-sm text-muted-foreground">No priorities yet.</p>}
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">No priorities yet.</p>
+          )}
         </Surface>
 
         <Surface className="p-6">
@@ -137,12 +168,21 @@ function RoadmapPage() {
           {roadmap.weakDimensions?.length ? (
             <div className="mt-4 flex flex-wrap gap-2">
               {roadmap.weakDimensions.map((d) => (
-                <Badge key={d} variant="outline" className="border-highlight/40 bg-highlight/10 text-highlight-foreground">{d}</Badge>
+                <Badge
+                  key={d}
+                  variant="outline"
+                  className="border-highlight/40 bg-highlight/10 text-highlight-foreground"
+                >
+                  {d}
+                </Badge>
               ))}
             </div>
-          ) : <p className="mt-3 text-sm text-muted-foreground">No weak dimensions identified.</p>}
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">No weak dimensions identified.</p>
+          )}
           <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Clock className="h-3 w-3" /> ~{totalHours}h of focused study across {roadmap.steps.length} steps
+            <Clock className="h-3 w-3" /> ~{totalHours}h of focused study across{" "}
+            {roadmap.steps.length} steps
           </p>
         </Surface>
       </div>
@@ -151,7 +191,8 @@ function RoadmapPage() {
       {roadmap.quickWins?.length > 0 && (
         <Surface className="mt-4 border-[color:var(--success)]/30 bg-[color:var(--success)]/5 p-6">
           <h3 className="flex items-center gap-2 text-sm font-medium">
-            <Lightbulb className="h-4 w-4 text-[color:var(--success)]" /> Quick wins — knock these out today
+            <Lightbulb className="h-4 w-4 text-[color:var(--success)]" /> Quick wins — knock these
+            out today
           </h3>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {roadmap.quickWins.map((q, i) => (
@@ -167,7 +208,9 @@ function RoadmapPage() {
       {/* Steps */}
       <div className="mt-8">
         <SectionEyebrow>Study plan</SectionEyebrow>
-        <h2 className="mt-2 font-display text-2xl font-semibold">{roadmap.steps.length} steps, ordered by impact.</h2>
+        <h2 className="mt-2 font-display text-2xl font-semibold">
+          {roadmap.steps.length} steps, ordered by impact.
+        </h2>
         <div className="mt-6 space-y-4">
           {roadmap.steps.map((s, i) => (
             <Surface key={i} className="p-6">
@@ -186,7 +229,9 @@ function RoadmapPage() {
               {s.actions?.length > 0 && (
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
                   <div>
-                    <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Actions</p>
+                    <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                      Actions
+                    </p>
                     <ul className="mt-2 space-y-1.5 text-sm">
                       {s.actions.map((a, j) => (
                         <li key={j} className="flex items-start gap-2">
@@ -198,7 +243,9 @@ function RoadmapPage() {
                   </div>
                   {s.resources?.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Suggested resources</p>
+                      <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                        Suggested resources
+                      </p>
                       <ul className="mt-2 space-y-1.5 text-sm">
                         {s.resources.map((r, j) => (
                           <li key={j} className="flex items-start gap-2">
@@ -259,7 +306,9 @@ function RoadmapSkeleton() {
         <Skeleton className="h-40 w-full" />
       </div>
       <div className="mt-6 space-y-3">
-        {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-32 w-full" />)}
+        {[0, 1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-32 w-full" />
+        ))}
       </div>
     </div>
   );

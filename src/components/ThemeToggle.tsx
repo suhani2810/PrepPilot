@@ -14,7 +14,7 @@ function applyTheme(t: Theme) {
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>("light");
   useEffect(() => {
-    const stored = (localStorage.getItem(STORAGE_KEY) as Theme | null);
+    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
     const initial: Theme =
       stored ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     setTheme(initial);

@@ -8,24 +8,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
-  Upload, FileText, Sparkles, CheckCircle2, Loader2, Brain, Layers, Wrench, ScrollText, GraduationCap, Rocket, X,
+  Upload,
+  FileText,
+  Sparkles,
+  CheckCircle2,
+  Loader2,
+  Brain,
+  Layers,
+  Wrench,
+  ScrollText,
+  GraduationCap,
+  Rocket,
+  X,
 } from "lucide-react";
 import { SectionEyebrow, Surface, EmptyState, Skeleton } from "@/components/prep/primitives";
 
 type Parsed = {
   summary?: string;
-  skills?: string[]; frameworks?: string[]; languages?: string[];
-  strengthAreas?: string[]; potentialQuestionAreas?: string[];
+  skills?: string[];
+  frameworks?: string[];
+  languages?: string[];
+  strengthAreas?: string[];
+  potentialQuestionAreas?: string[];
   education?: { degree: string; institution: string; year: string }[];
   experience?: { role: string; company: string; duration: string; highlights: string[] }[];
-  projects?: { name: string; description: string; technologies: string[]; possibleInterviewTopics: string[] }[];
+  projects?: {
+    name: string;
+    description: string;
+    technologies: string[];
+    possibleInterviewTopics: string[];
+  }[];
 };
 
 export const Route = createFileRoute("/_authenticated/resume")({
   head: () => ({
     meta: [
       { title: "Resume Intelligence — PrepPilot" },
-      { name: "description", content: "Upload your resume and let PrepPilot build a structured candidate profile that powers every interview." },
+      {
+        name: "description",
+        content:
+          "Upload your resume and let PrepPilot build a structured candidate profile that powers every interview.",
+      },
     ],
   }),
   component: ResumePage,
@@ -56,13 +79,21 @@ function ResumePage() {
   const load = async () => {
     setLoading(true);
     const { data: u } = await supabase.auth.getUser();
-    if (!u.user) { setLoading(false); return; }
-    const { data } = await supabase.from("candidate_profiles")
-      .select("id, parsed").eq("user_id", u.user.id).maybeSingle();
+    if (!u.user) {
+      setLoading(false);
+      return;
+    }
+    const { data } = await supabase
+      .from("candidate_profiles")
+      .select("id, parsed")
+      .eq("user_id", u.user.id)
+      .maybeSingle();
     if (data) setProfile({ id: data.id, parsed: (data.parsed as Parsed) ?? {} });
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const advanceStage = () => {
     // Simulate meaningful staged progress while the server runs — never claims completion.
@@ -74,7 +105,10 @@ function ResumePage() {
       setStage(order[i]);
     }, 3000);
   };
-  const stopStages = () => { if (stageTimer.current) clearInterval(stageTimer.current); stageTimer.current = null; };
+  const stopStages = () => {
+    if (stageTimer.current) clearInterval(stageTimer.current);
+    stageTimer.current = null;
+  };
 
   const upload = async () => {
     if (!file) return;
@@ -85,7 +119,8 @@ function ResumePage() {
       if (!u.user) throw new Error("Not signed in");
       const path = `${u.user.id}/${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
       const { error: upErr } = await supabase.storage.from("resumes").upload(path, file, {
-        contentType: "application/pdf", upsert: false,
+        contentType: "application/pdf",
+        upsert: false,
       });
       if (upErr) throw upErr;
       await parseFn({ data: { resumePath: path } });
@@ -110,7 +145,9 @@ function ResumePage() {
       toast.success("Profile updated");
       setEditing(false);
       await load();
-    } catch { toast.error("Invalid JSON"); }
+    } catch {
+      toast.error("Invalid JSON");
+    }
   };
 
   return (
@@ -118,13 +155,19 @@ function ResumePage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <SectionEyebrow>Resume intelligence</SectionEyebrow>
-          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-[2.5rem]">Your candidate profile</h1>
+          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-[2.5rem]">
+            Your candidate profile
+          </h1>
           <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-            Upload once. PrepPilot builds a structured profile that powers every question in every interview.
+            Upload once. PrepPilot builds a structured profile that powers every question in every
+            interview.
           </p>
         </div>
         {profile && !busy && (
-          <Badge variant="outline" className="border-[color:var(--success)]/40 bg-[color:var(--success)]/10 text-[color:var(--success)]">
+          <Badge
+            variant="outline"
+            className="border-[color:var(--success)]/40 bg-[color:var(--success)]/10 text-[color:var(--success)]"
+          >
             <CheckCircle2 className="mr-1 h-3 w-3" /> Profile ready
           </Badge>
         )}
@@ -144,12 +187,15 @@ function ResumePage() {
                 {profile ? "Update your candidate profile" : "Start with your PDF resume"}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                We extract skills, frameworks, projects, and interview angles into a structured profile. You can edit anything after.
+                We extract skills, frameworks, projects, and interview angles into a structured
+                profile. You can edit anything after.
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-3">
                 <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border/80 bg-card/60 px-4 py-2.5 text-sm transition hover:border-primary/50">
                   <FileText className="h-4 w-4 text-primary" />
-                  <span className="max-w-[220px] truncate">{file ? file.name : "Choose a PDF…"}</span>
+                  <span className="max-w-[220px] truncate">
+                    {file ? file.name : "Choose a PDF…"}
+                  </span>
                   <input
                     type="file"
                     accept="application/pdf"
@@ -179,10 +225,23 @@ function ResumePage() {
             <div className="hidden sm:block">
               <div className="relative rounded-xl border border-border/70 bg-secondary/30 p-6">
                 <div className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/15 blur-2xl" />
-                <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">What we extract</p>
+                <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+                  What we extract
+                </p>
                 <ul className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                  {["Skills", "Frameworks", "Languages", "Projects", "Experience", "Education", "Strength areas", "Interview angles"].map((x) => (
-                    <li key={x} className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-primary" /> {x}</li>
+                  {[
+                    "Skills",
+                    "Frameworks",
+                    "Languages",
+                    "Projects",
+                    "Experience",
+                    "Education",
+                    "Strength areas",
+                    "Interview angles",
+                  ].map((x) => (
+                    <li key={x} className="inline-flex items-center gap-1.5">
+                      <CheckCircle2 className="h-3 w-3 text-primary" /> {x}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -209,11 +268,26 @@ function ResumePage() {
             <div className="flex gap-2">
               {editing ? (
                 <>
-                  <Button variant="outline" size="sm" onClick={() => setEditing(false)}>Cancel</Button>
-                  <Button size="sm" onClick={saveEdit} className="bg-gradient-primary text-primary-foreground">Save</Button>
+                  <Button variant="outline" size="sm" onClick={() => setEditing(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={saveEdit}
+                    className="bg-gradient-primary text-primary-foreground"
+                  >
+                    Save
+                  </Button>
                 </>
               ) : (
-                <Button variant="outline" size="sm" onClick={() => { setDraft(JSON.stringify(profile.parsed, null, 2)); setEditing(true); }}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setDraft(JSON.stringify(profile.parsed, null, 2));
+                    setEditing(true);
+                  }}
+                >
                   Edit JSON
                 </Button>
               )}
@@ -221,7 +295,12 @@ function ResumePage() {
           </div>
 
           {editing ? (
-            <Textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={24} className="font-mono text-xs" />
+            <Textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={24}
+              className="font-mono text-xs"
+            />
           ) : (
             <>
               {profile.parsed.summary && (
@@ -231,11 +310,34 @@ function ResumePage() {
                 </Surface>
               )}
               <div className="grid gap-4 md:grid-cols-2">
-                <TagCard icon={<Wrench className="h-4 w-4" />} title="Skills" items={profile.parsed.skills} />
-                <TagCard icon={<Layers className="h-4 w-4" />} title="Frameworks" items={profile.parsed.frameworks} />
-                <TagCard icon={<ScrollText className="h-4 w-4" />} title="Languages" items={profile.parsed.languages} />
-                <TagCard icon={<Sparkles className="h-4 w-4" />} title="Strength areas" items={profile.parsed.strengthAreas} tone="highlight" />
-                <TagCard icon={<Brain className="h-4 w-4" />} title="Likely question areas" items={profile.parsed.potentialQuestionAreas} tone="primary" className="md:col-span-2" />
+                <TagCard
+                  icon={<Wrench className="h-4 w-4" />}
+                  title="Skills"
+                  items={profile.parsed.skills}
+                />
+                <TagCard
+                  icon={<Layers className="h-4 w-4" />}
+                  title="Frameworks"
+                  items={profile.parsed.frameworks}
+                />
+                <TagCard
+                  icon={<ScrollText className="h-4 w-4" />}
+                  title="Languages"
+                  items={profile.parsed.languages}
+                />
+                <TagCard
+                  icon={<Sparkles className="h-4 w-4" />}
+                  title="Strength areas"
+                  items={profile.parsed.strengthAreas}
+                  tone="highlight"
+                />
+                <TagCard
+                  icon={<Brain className="h-4 w-4" />}
+                  title="Likely question areas"
+                  items={profile.parsed.potentialQuestionAreas}
+                  tone="primary"
+                  className="md:col-span-2"
+                />
               </div>
 
               {profile.parsed.projects && profile.parsed.projects.length > 0 && (
@@ -246,18 +348,29 @@ function ResumePage() {
                   </div>
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     {profile.parsed.projects.map((p, i) => (
-                      <div key={i} className="rounded-lg border border-border/70 bg-secondary/30 p-4 transition hover:border-primary/40">
+                      <div
+                        key={i}
+                        className="rounded-lg border border-border/70 bg-secondary/30 p-4 transition hover:border-primary/40"
+                      >
                         <p className="font-medium">{p.name}</p>
                         <p className="mt-1 text-sm text-muted-foreground">{p.description}</p>
                         {p.technologies?.length ? (
                           <div className="mt-3 flex flex-wrap gap-1">
-                            {p.technologies.map((t) => <Badge key={t} variant="secondary" className="text-[10px]">{t}</Badge>)}
+                            {p.technologies.map((t) => (
+                              <Badge key={t} variant="secondary" className="text-[10px]">
+                                {t}
+                              </Badge>
+                            ))}
                           </div>
                         ) : null}
                         {p.possibleInterviewTopics?.length ? (
                           <div className="mt-3 border-t border-border/60 pt-2">
-                            <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Interview angles</p>
-                            <p className="mt-1 text-xs text-muted-foreground">{p.possibleInterviewTopics.join(" · ")}</p>
+                            <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+                              Interview angles
+                            </p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {p.possibleInterviewTopics.join(" · ")}
+                            </p>
                           </div>
                         ) : null}
                       </div>
@@ -274,11 +387,15 @@ function ResumePage() {
                       <div key={i} className="relative pl-5">
                         <span className="absolute left-0 top-1.5 h-2 w-2 rounded-full bg-primary" />
                         <span className="absolute left-[3px] top-4 h-full w-px bg-border" />
-                        <p className="font-medium">{x.role} <span className="text-muted-foreground">· {x.company}</span></p>
+                        <p className="font-medium">
+                          {x.role} <span className="text-muted-foreground">· {x.company}</span>
+                        </p>
                         <p className="text-xs text-muted-foreground">{x.duration}</p>
                         {x.highlights?.length ? (
                           <ul className="mt-2 list-disc space-y-1 pl-4 text-sm text-muted-foreground">
-                            {x.highlights.map((h, hi) => <li key={hi}>{h}</li>)}
+                            {x.highlights.map((h, hi) => (
+                              <li key={hi}>{h}</li>
+                            ))}
                           </ul>
                         ) : null}
                       </div>
@@ -295,7 +412,10 @@ function ResumePage() {
                   </div>
                   <ul className="mt-3 space-y-2 text-sm">
                     {profile.parsed.education.map((e, i) => (
-                      <li key={i}><span className="font-medium">{e.degree}</span> — {e.institution} <span className="text-muted-foreground">({e.year})</span></li>
+                      <li key={i}>
+                        <span className="font-medium">{e.degree}</span> — {e.institution}{" "}
+                        <span className="text-muted-foreground">({e.year})</span>
+                      </li>
                     ))}
                   </ul>
                 </Surface>
@@ -324,7 +444,9 @@ function AnalysisProgress({ stage }: { stage: StageKey }) {
           <Brain className="h-4 w-4" />
         </span>
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">Analyzing</p>
+          <p className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+            Analyzing
+          </p>
           <h3 className="font-display text-xl font-semibold">Building your candidate profile</h3>
         </div>
       </div>
@@ -334,10 +456,26 @@ function AnalysisProgress({ stage }: { stage: StageKey }) {
           const active = i === currentIndex && stage !== "done";
           return (
             <li key={s.key} className="flex items-center gap-3 text-sm">
-              <span className={`grid h-6 w-6 place-items-center rounded-full border ${done ? "border-[color:var(--success)]/40 bg-[color:var(--success)]/10 text-[color:var(--success)]" : active ? "border-primary/50 bg-primary/10 text-primary" : "border-border/60 bg-secondary/40 text-muted-foreground"}`}>
-                {done ? <CheckCircle2 className="h-3.5 w-3.5" /> : active ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <s.icon className="h-3 w-3" />}
+              <span
+                className={`grid h-6 w-6 place-items-center rounded-full border ${done ? "border-[color:var(--success)]/40 bg-[color:var(--success)]/10 text-[color:var(--success)]" : active ? "border-primary/50 bg-primary/10 text-primary" : "border-border/60 bg-secondary/40 text-muted-foreground"}`}
+              >
+                {done ? (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                ) : active ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <s.icon className="h-3 w-3" />
+                )}
               </span>
-              <span className={active ? "text-foreground" : done ? "text-muted-foreground line-through" : "text-muted-foreground"}>
+              <span
+                className={
+                  active
+                    ? "text-foreground"
+                    : done
+                      ? "text-muted-foreground line-through"
+                      : "text-muted-foreground"
+                }
+              >
                 {s.label}
               </span>
             </li>
@@ -352,8 +490,18 @@ function AnalysisProgress({ stage }: { stage: StageKey }) {
 }
 
 function TagCard({
-  icon, title, items, tone = "default", className,
-}: { icon?: React.ReactNode; title: string; items?: string[]; tone?: "default" | "primary" | "highlight"; className?: string }) {
+  icon,
+  title,
+  items,
+  tone = "default",
+  className,
+}: {
+  icon?: React.ReactNode;
+  title: string;
+  items?: string[];
+  tone?: "default" | "primary" | "highlight";
+  className?: string;
+}) {
   if (!items || items.length === 0) return null;
   return (
     <Surface className={`p-5 ${className ?? ""}`}>
@@ -367,8 +515,11 @@ function TagCard({
             key={t}
             variant="secondary"
             className={
-              tone === "primary" ? "border-primary/40 bg-primary/10 text-primary" :
-              tone === "highlight" ? "border-highlight/40 bg-highlight/10 text-highlight" : ""
+              tone === "primary"
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : tone === "highlight"
+                  ? "border-highlight/40 bg-highlight/10 text-highlight"
+                  : ""
             }
           >
             {t}
