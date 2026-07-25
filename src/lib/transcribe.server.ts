@@ -1,4 +1,54 @@
 import Groq, { AuthenticationError, APIError, RateLimitError } from "groq-sdk";
+import { createClient } from "@supabase/supabase-js";
+
+function isNewSupabaseApiKey(value: string): boolean {
+  return value.startsWith("sb_publishable_") || value.startsWith("sb_secret_");
+}
+
+async function verifyAuth(request: Request): Promise<{ userId: string } | Response> {
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+    return jsonError("Server configuration error: Supabase env missing.", 500);
+  }
+
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return jsonError("Unauthorized", 401);
+  }
+  const token = authHeader.slice("Bearer ".length).trim();
+  if (!token || token.split(".").length !== 3) {
+    return jsonError("Unauthorized", 401);
+  }
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    global: {
+      fetch: (input, init) => {
+        const headers = new Headers(init?.headers);
+        if (
+          isNewSupabaseApiKey(SUPABASE_PUBLISHABLE_KEY) &&
+          headers.get("Authorization") === `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
+        ) {
+          headers.delete("Authorization");
+        }
+        headers.set("apikey", SUPABASE_PUBLISHABLE_KEY);
+        headers.set("Authorization", `Bearer ${token}`);
+        return fetch(input, { ...init, headers });
+      },
+    },
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+  });
+
+  try {
+    const { data, error } = await supabase.auth.getClaims(token);
+    if (error || !data?.claims?.sub) {
+      return jsonError("Unauthorized", 401);
+    }
+    return { userId: data.claims.sub as string };
+  } catch {
+    return jsonError("Unauthorized", 401);
+  }
+}
 
 const MAX_AUDIO_FILE_SIZE_BYTES = 25 * 1024 * 1024;
 const ALLOWED_AUDIO_MIME_TYPES = new Set([
@@ -88,6 +138,9 @@ export async function handleTranscribeRequest(request: Request): Promise<Respons
   if (request.method !== "POST") {
     return jsonError("Method not allowed. Use POST.", 405);
   }
+
+  const auth = await verifyAuth(request);
+  if (auth instanceof Response) return auth;
 
   const contentType = request.headers.get("content-type") ?? "";
   if (!contentType.toLowerCase().includes("multipart/form-data")) {

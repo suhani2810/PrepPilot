@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, Mic, Volume2, VolumeX } from "lucide-react";
 import { useVoiceRecorder } from "./useVoiceRecorder";
+import { supabase } from "@/integrations/supabase/client";
 
 export type VoiceFlowState =
   | "ready"
@@ -285,10 +286,13 @@ export function VoiceAnswerRecorder({
           try {
             const formData = new FormData();
             formData.append("audio", audioFile);
+            const { data: sessionData } = await supabase.auth.getSession();
+            const accessToken = sessionData.session?.access_token;
             const response = await fetch("/api/transcribe", {
               method: "POST",
               body: formData,
               signal: controller.signal,
+              headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
             });
             const responseText = await response.text();
             let payload: { transcript?: unknown; error?: string };
