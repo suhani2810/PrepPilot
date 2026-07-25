@@ -284,12 +284,33 @@ export type Database = {
         }
         Relationships: []
       }
+      request_rate_limits: {
+        Row: {
+          action: string
+          request_count: number
+          user_id: string
+          window_started_at: string
+        }
+        Insert: {
+          action: string
+          request_count?: number
+          user_id: string
+          window_started_at: string
+        }
+        Update: {
+          action?: string
+          request_count?: number
+          user_id?: string
+          window_started_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_rate_limit: { Args: { p_action: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
