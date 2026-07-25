@@ -374,7 +374,6 @@ export function VoiceAnswerRecorder({
       disabled ||
       isBusy ||
       isRecording ||
-      flowState === "requesting-microphone" ||
       inFlightRef.current
     )
       return;
