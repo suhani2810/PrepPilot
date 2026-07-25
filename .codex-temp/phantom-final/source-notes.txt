@@ -1,0 +1,4 @@
+Visible content follows the user-approved seven-slide outline and is cross-checked against the current PrepPilot repository.
+Sources: README.md; current authenticated routes; interview.functions.ts; transcribe.server.ts; start.ts; Supabase migrations.
+No external statistics, claims or third-party visual assets are used.
+

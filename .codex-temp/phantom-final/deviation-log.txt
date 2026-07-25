@@ -1,0 +1,2 @@
+No visual deviations. Slides 2 and 6 are intentionally duplicated to support different approved content while preserving the exact inherited template styling.
+

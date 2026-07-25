@@ -16,7 +16,6 @@ import {
   Video,
 } from "lucide-react";
 import { EmptyState, SectionEyebrow, Skeleton, Surface } from "@/components/prep/primitives";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/interview/$interviewId/roadmap")({
   head: () => ({
@@ -55,25 +54,24 @@ function RoadmapPage() {
   const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
   const [cached, setCached] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [regenerating, setRegenerating] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fetchFn = useServerFn(getOrGenerateRoadmap);
 
-  const load = async (force = false) => {
-    if (force) setRegenerating(true);
+  const load = async (refresh = false) => {
+    if (refresh) setRefreshing(true);
     else setLoading(true);
     setError(null);
     try {
-      const res = await fetchFn({ data: { interviewId, force } });
+      const res = await fetchFn({ data: { interviewId } });
       setRoadmap(res.roadmap as Roadmap);
       setCached(res.cached);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to load roadmap";
       setError(msg);
-      if (force) toast.error(msg);
     } finally {
       setLoading(false);
-      setRegenerating(false);
+      setRefreshing(false);
     }
   };
 
@@ -131,9 +129,9 @@ function RoadmapPage() {
           <Link to="/interview/$interviewId/report" params={{ interviewId }}>
             <Button variant="outline">Back to report</Button>
           </Link>
-          <Button variant="outline" onClick={() => load(true)} disabled={regenerating}>
-            <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${regenerating ? "animate-spin" : ""}`} />
-            {regenerating ? "Regenerating…" : "Regenerate"}
+          <Button variant="outline" onClick={() => load(true)} disabled={refreshing}>
+            <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
+            {refreshing ? "Refreshing…" : "Refresh saved plan"}
           </Button>
         </div>
       </div>

@@ -1,0 +1,7 @@
+Source: PrepPilot_Team_Phantom_Features.pptx, seven-slide Team Phantom visual system.
+Typography: Aptos with large 48 px titles, 21-30 px body copy and 82 px cover title.
+Palette: navy, teal, cyan, pale grey and white.
+All elements are slide-local; no empty structural placeholders were found.
+Reusable patterns selected: cover (1), three-column evidence (2), two-mode split (3), four-quadrant feature summary (6), four-stage architecture (5).
+The approved seven-slide narrative reuses and duplicates these patterns without changing their geometry, typography or brand chrome.
+

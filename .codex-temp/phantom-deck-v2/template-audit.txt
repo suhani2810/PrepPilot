@@ -1,0 +1,15 @@
+Source deck: PrepPilot_Team_Phantom.pptx
+Slides: 7, 16:9, 1280 x 720
+Typography: Aptos; 48 px slide titles, 21-30 px body, 82 px deck title
+Palette: navy #081521, teal #19B8A5, cyan #68D9D0, pale #F3F8F8, white
+Structure: all graphics and text are slide-local; no inherited PowerPoint placeholders are present.
+Reusable slide types:
+- Slide 1: title and team identity
+- Slide 2: three-column comparison
+- Slide 3: narrative plus three stacked feature bands
+- Slide 4: five-step journey
+- Slide 5: four-stage technical flow
+- Slide 6: four-quadrant feature summary
+- Slide 7: closing statement
+Insertion contract: preserve every source slide, shape position, typography, palette, and connector. Rewrite only mapped text elements and speaker notes.
+

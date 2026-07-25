@@ -91,26 +91,33 @@ The dev server listens on the port Vite picks (default `5173`).
 
 Copy `.env.example` to `.env` and fill in:
 
-| Variable                        | Where            | Required | Purpose                                              |
-| ------------------------------- | ---------------- | -------- | ---------------------------------------------------- |
-| `VITE_SUPABASE_URL`             | browser + server | yes      | Supabase project URL for the browser client          |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | browser + server | yes      | Supabase anon/publishable key for the browser client |
-| `VITE_SUPABASE_PROJECT_ID`      | browser          | yes      | Supabase project ref                                 |
-| `SUPABASE_URL`                  | server           | yes      | Same URL, used by SSR + server functions             |
-| `SUPABASE_PUBLISHABLE_KEY`      | server           | yes      | Same anon key, used by SSR + server functions        |
-| `SUPABASE_PROJECT_ID`           | server           | yes      | Same project ref                                     |
-| `SUPABASE_SERVICE_ROLE_KEY`     | server           | no       | Only needed if you add admin server code             |
-| `GROQ_API_KEY`                  | server           | yes\*    | Primary LLM provider                                 |
-| `OPENROUTER_API_KEY`            | server           | yes\*    | Fallback LLM provider                                |
-| `GROQ_MODEL`                    | server           | no       | Override default Groq model                          |
-| `OPENROUTER_MODEL`              | server           | no       | Override default OpenRouter model                    |
-| `AI_PROVIDER`                   | server           | no       | `groq` (default) or `openrouter`                     |
+| Variable                        | Where            | Required | Purpose                                                |
+| ------------------------------- | ---------------- | -------- | ------------------------------------------------------ |
+| `VITE_SUPABASE_URL`             | browser + server | yes      | Supabase project URL for the browser client            |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | browser + server | yes      | Supabase anon/publishable key for the browser client   |
+| `VITE_SUPABASE_PROJECT_ID`      | browser          | yes      | Supabase project ref                                   |
+| `SUPABASE_URL`                  | server           | yes      | Same URL, used by SSR + server functions               |
+| `SUPABASE_PUBLISHABLE_KEY`      | server           | yes      | Same anon key, used by SSR + server functions          |
+| `SUPABASE_PROJECT_ID`           | server           | yes      | Same project ref                                       |
+| `SUPABASE_SERVICE_ROLE_KEY`     | server           | yes      | Trusted interview writes; never expose to the browser  |
+| `GROQ_API_KEY`                  | server           | yes\*    | Primary LLM provider; required for voice transcription |
+| `OPENROUTER_API_KEY`            | server           | yes\*    | Fallback LLM provider                                  |
+| `GROQ_MODEL`                    | server           | no       | Override default Groq model                            |
+| `GROQ_TRANSCRIPTION_MODEL`      | server           | no       | Override the Groq voice transcription model            |
+| `OPENROUTER_MODEL`              | server           | no       | Override default OpenRouter model                      |
+| `AI_PROVIDER`                   | server           | no       | `groq` (default) or `openrouter`                       |
 
-\* At least one AI provider key is required.
+\* At least one AI provider key is required. Voice Interview always requires
+`GROQ_API_KEY`; the OpenRouter fallback only covers text generation.
 
 Server-only keys must **never** be prefixed with `VITE_` — that would ship
 them to the browser. `.env`, `.env.local`, and all `.env.*.local` files are
 git-ignored; only `.env.example` is tracked.
+
+The service-role key is used only after the caller's access token and resource
+ownership are verified. Apply every migration before deploying this version;
+the security migration revokes direct candidate writes to scores, messages,
+reports, profiles, and roadmaps.
 
 ## Database setup
 

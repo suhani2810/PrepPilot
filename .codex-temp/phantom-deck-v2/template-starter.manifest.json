@@ -1,0 +1,89 @@
+{
+  "sourcePptx": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\PrepPilot_Team_Phantom.pptx",
+  "mapPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-frame-map.json",
+  "output": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter.pptx",
+  "outputBytes": 36258,
+  "sourceSlideCount": 7,
+  "slideCount": 7,
+  "previewDir": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-preview",
+  "layoutDir": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-layout",
+  "slides": [
+    {
+      "outputSlide": 1,
+      "sourceSlide": 1,
+      "narrativeRole": "opening title",
+      "reuseMode": "duplicate-slide",
+      "editTargetCount": 1,
+      "previewPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-preview\\starter-slide-01.png",
+      "previewRelativePath": "template-starter-preview/starter-slide-01.png",
+      "layoutPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-layout\\starter-slide-01.layout.json",
+      "layoutRelativePath": "template-starter-layout/starter-slide-01.layout.json"
+    },
+    {
+      "outputSlide": 2,
+      "sourceSlide": 2,
+      "narrativeRole": "implemented setup and resume features",
+      "reuseMode": "duplicate-slide",
+      "editTargetCount": 1,
+      "previewPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-preview\\starter-slide-02.png",
+      "previewRelativePath": "template-starter-preview/starter-slide-02.png",
+      "layoutPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-layout\\starter-slide-02.layout.json",
+      "layoutRelativePath": "template-starter-layout/starter-slide-02.layout.json"
+    },
+    {
+      "outputSlide": 3,
+      "sourceSlide": 3,
+      "narrativeRole": "implemented voice and text experience",
+      "reuseMode": "duplicate-slide",
+      "editTargetCount": 1,
+      "previewPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-preview\\starter-slide-03.png",
+      "previewRelativePath": "template-starter-preview/starter-slide-03.png",
+      "layoutPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-layout\\starter-slide-03.layout.json",
+      "layoutRelativePath": "template-starter-layout/starter-slide-03.layout.json"
+    },
+    {
+      "outputSlide": 4,
+      "sourceSlide": 4,
+      "narrativeRole": "end-to-end candidate session flow",
+      "reuseMode": "duplicate-slide",
+      "editTargetCount": 1,
+      "previewPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-preview\\starter-slide-04.png",
+      "previewRelativePath": "template-starter-preview/starter-slide-04.png",
+      "layoutPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-layout\\starter-slide-04.layout.json",
+      "layoutRelativePath": "template-starter-layout/starter-slide-04.layout.json"
+    },
+    {
+      "outputSlide": 5,
+      "sourceSlide": 5,
+      "narrativeRole": "technical architecture and persistence",
+      "reuseMode": "duplicate-slide",
+      "editTargetCount": 1,
+      "previewPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-preview\\starter-slide-05.png",
+      "previewRelativePath": "template-starter-preview/starter-slide-05.png",
+      "layoutPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-layout\\starter-slide-05.layout.json",
+      "layoutRelativePath": "template-starter-layout/starter-slide-05.layout.json"
+    },
+    {
+      "outputSlide": 6,
+      "sourceSlide": 6,
+      "narrativeRole": "adaptive orchestration evaluation and outputs",
+      "reuseMode": "duplicate-slide",
+      "editTargetCount": 1,
+      "previewPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-preview\\starter-slide-06.png",
+      "previewRelativePath": "template-starter-preview/starter-slide-06.png",
+      "layoutPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-layout\\starter-slide-06.layout.json",
+      "layoutRelativePath": "template-starter-layout/starter-slide-06.layout.json"
+    },
+    {
+      "outputSlide": 7,
+      "sourceSlide": 7,
+      "narrativeRole": "closing synthesis",
+      "reuseMode": "duplicate-slide",
+      "editTargetCount": 1,
+      "previewPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-preview\\starter-slide-07.png",
+      "previewRelativePath": "template-starter-preview/starter-slide-07.png",
+      "layoutPath": "C:\\Users\\KIIT\\Desktop\\PrepPilot\\.codex-temp\\phantom-deck-v2\\template-starter-layout\\starter-slide-07.layout.json",
+      "layoutRelativePath": "template-starter-layout/starter-slide-07.layout.json"
+    }
+  ]
+}

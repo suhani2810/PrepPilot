@@ -41,6 +41,7 @@ function safeJsonParse<T>(text: string): T | null {
 async function generateJson<T>(opts: {
   system: string;
   prompt: string;
+  schema: z.ZodType<T>;
   fallback: T;
   timeoutMs?: number;
 }): Promise<T> {
@@ -57,12 +58,14 @@ async function generateJson<T>(opts: {
         prompt: opts.prompt,
         abortSignal: controller.signal,
       });
-      const parsed = safeJsonParse<T>(text);
-      return parsed ?? opts.fallback;
+      const parsed = safeJsonParse<unknown>(text);
+      const validated = opts.schema.safeParse(parsed);
+      return validated.success ? validated.data : opts.fallback;
     } catch (err) {
       if (NoObjectGeneratedError.isInstance(err)) {
-        const parsed = safeJsonParse<T>(err.text ?? "");
-        if (parsed) return parsed;
+        const parsed = safeJsonParse<unknown>(err.text ?? "");
+        const validated = opts.schema.safeParse(parsed);
+        if (validated.success) return validated.data;
       }
       lastErr = err;
       if (controller.signal.aborted) {
@@ -77,23 +80,97 @@ async function generateJson<T>(opts: {
   throw new Error(`AI request failed: ${msg}`);
 }
 
+type RateLimitAction = "parse_resume" | "start_interview" | "submit_answer" | "roadmap";
+
+async function enforceRateLimit(supabase: unknown, action: RateLimitAction) {
+  const rateLimitClient = supabase as {
+    rpc: (
+      name: string,
+      args: Record<string, unknown>,
+    ) => PromiseLike<{ data: unknown; error: unknown }>;
+  };
+  const { data, error } = await rateLimitClient.rpc("consume_rate_limit", { p_action: action });
+  if (error) {
+    console.error(`[security] ${action} rate-limit check failed`, error);
+    throw new Error("Security controls are unavailable. Please retry shortly.");
+  }
+  if (data !== true) throw new Error("Too many requests. Please wait before trying again.");
+}
+
+async function getTrustedDb() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin;
+}
+
+const limitedText = (max: number) => z.string().trim().max(max);
+const resumeProfileSchema = z.object({
+  summary: limitedText(4_000),
+  education: z
+    .array(
+      z.object({
+        degree: limitedText(300),
+        institution: limitedText(300),
+        year: limitedText(100),
+      }),
+    )
+    .max(20),
+  skills: z.array(limitedText(200)).max(100),
+  frameworks: z.array(limitedText(200)).max(100),
+  languages: z.array(limitedText(200)).max(100),
+  projects: z
+    .array(
+      z.object({
+        name: limitedText(300),
+        description: limitedText(4_000),
+        technologies: z.array(limitedText(200)).max(50),
+        possibleInterviewTopics: z.array(limitedText(300)).max(50),
+      }),
+    )
+    .max(30),
+  experience: z
+    .array(
+      z.object({
+        role: limitedText(300),
+        company: limitedText(300),
+        duration: limitedText(200),
+        highlights: z.array(limitedText(1_000)).max(50),
+      }),
+    )
+    .max(30),
+  strengthAreas: z.array(limitedText(300)).max(50),
+  potentialQuestionAreas: z.array(limitedText(300)).max(50),
+});
+
 // -------- 1. Parse resume --------------------------------------------------
 export const parseResume = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: { resumePath: string }) =>
-    z.object({ resumePath: z.string().min(1) }).parse(data),
+    z.object({ resumePath: z.string().min(1).max(500) }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await enforceRateLimit(supabase, "parse_resume");
+    if (!data.resumePath.startsWith(`${userId}/`)) throw new Error("Invalid resume path");
     const { data: file, error: dlErr } = await supabase.storage
       .from("resumes")
       .download(data.resumePath);
     if (dlErr || !file) throw new Error(dlErr?.message ?? "Failed to download resume");
+    if (file.size > 10 * 1024 * 1024) throw new Error("Resume must be 10 MB or smaller");
     const bytes = new Uint8Array(await file.arrayBuffer());
+    if (
+      bytes.length < 5 ||
+      bytes[0] !== 0x25 ||
+      bytes[1] !== 0x50 ||
+      bytes[2] !== 0x44 ||
+      bytes[3] !== 0x46 ||
+      bytes[4] !== 0x2d
+    ) {
+      throw new Error("The uploaded file is not a valid PDF");
+    }
     const { extractPdfText } = await import("./pdf.server");
     const resumeText = (await extractPdfText(bytes)).slice(0, 60_000);
 
-    const parsed = await generateJson<Record<string, unknown>>({
+    const parsed = await generateJson({
       system:
         "You are an expert technical recruiter. Extract structured candidate information from a resume for mock interview preparation.",
       prompt: `Resume text:\n"""\n${resumeText}\n"""\n\nReturn JSON with this exact shape:\n{
@@ -107,6 +184,7 @@ export const parseResume = createServerFn({ method: "POST" })
   "strengthAreas": string[],
   "potentialQuestionAreas": string[]
 }`,
+      schema: resumeProfileSchema,
       fallback: {
         summary: "",
         education: [],
@@ -121,25 +199,27 @@ export const parseResume = createServerFn({ method: "POST" })
     });
     const parsedJson = parsed as unknown as import("@/integrations/supabase/types").Json;
 
-    const { data: existing } = await supabase
+    const db = await getTrustedDb();
+    const { data: existing } = await db
       .from("candidate_profiles")
       .select("id")
       .eq("user_id", userId)
       .maybeSingle();
 
     if (existing) {
-      const { error } = await supabase
+      const { error } = await db
         .from("candidate_profiles")
         .update({
           resume_path: data.resumePath,
           resume_text: resumeText,
           parsed: parsedJson,
         })
-        .eq("id", existing.id);
+        .eq("id", existing.id)
+        .eq("user_id", userId);
       if (error) throw new Error(error.message);
       return { id: existing.id };
     }
-    const { data: inserted, error } = await supabase
+    const { data: inserted, error } = await db
       .from("candidate_profiles")
       .insert({
         user_id: userId,
@@ -157,13 +237,23 @@ export const parseResume = createServerFn({ method: "POST" })
 export const updateCandidateProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: { id: string; parsed: unknown }) =>
-    z.object({ id: z.string().uuid(), parsed: z.any() }).parse(data),
+    z
+      .object({
+        id: z.string().uuid(),
+        parsed: resumeProfileSchema.refine(
+          (value) => JSON.stringify(value).length <= 100_000,
+          "Candidate profile is too large",
+        ),
+      })
+      .parse(data),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
+    const db = await getTrustedDb();
+    const { error } = await db
       .from("candidate_profiles")
       .update({ parsed: asJson(data.parsed) })
-      .eq("id", data.id);
+      .eq("id", data.id)
+      .eq("user_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -182,10 +272,10 @@ export const startInterview = createServerFn({ method: "POST" })
     }) =>
       z
         .object({
-          role: z.string().min(1),
-          experienceLevel: z.string().min(1),
-          interviewTypes: z.array(z.string()).min(1),
-          jobDescription: z.string().optional(),
+          role: z.string().trim().min(1).max(120),
+          experienceLevel: z.string().trim().min(1).max(80),
+          interviewTypes: z.array(z.string().trim().min(1).max(80)).min(1).max(5),
+          jobDescription: z.string().trim().max(20_000).optional(),
           durationMinutes: z.number().int().min(5).max(180),
           interviewMode: z.enum(["voice", "text"]),
         })
@@ -193,9 +283,11 @@ export const startInterview = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await enforceRateLimit(supabase, "start_interview");
+    const db = await getTrustedDb();
     const [{ data: cp }, { data: profile }] = await Promise.all([
-      supabase.from("candidate_profiles").select("id").eq("user_id", userId).maybeSingle(),
-      supabase.from("profiles").select("display_name").eq("id", userId).maybeSingle(),
+      db.from("candidate_profiles").select("id").eq("user_id", userId).maybeSingle(),
+      db.from("profiles").select("display_name").eq("id", userId).maybeSingle(),
     ]);
 
     const candidateFirstName = profile?.display_name?.trim().split(/\s+/)[0];
@@ -228,7 +320,7 @@ export const startInterview = createServerFn({ method: "POST" })
       "I'm now reviewing your responses and preparing your performance report.",
     ].join("\n\n");
 
-    const { data: interview, error: iErr } = await supabase
+    const { data: interview, error: iErr } = await db
       .from("interviews")
       .insert({
         user_id: userId,
@@ -254,7 +346,7 @@ export const startInterview = createServerFn({ method: "POST" })
       .single();
     if (iErr) throw new Error(iErr.message);
 
-    const { error: mErr } = await supabase.from("interview_messages").insert({
+    const { error: mErr } = await db.from("interview_messages").insert({
       interview_id: interview.id,
       role: "ai",
       content: first.question,
@@ -274,8 +366,9 @@ export const beginInterview = createServerFn({ method: "POST" })
     z.object({ interviewId: z.string().uuid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const { data: interview, error: readError } = await supabase
+    const { userId } = context;
+    const db = await getTrustedDb();
+    const { data: interview, error: readError } = await db
       .from("interviews")
       .select("user_id, context, started_at")
       .eq("id", data.interviewId)
@@ -290,7 +383,7 @@ export const beginInterview = createServerFn({ method: "POST" })
     }
 
     const startedAt = new Date().toISOString();
-    const { error: updateError } = await supabase
+    const { error: updateError } = await db
       .from("interviews")
       .update({
         started_at: startedAt,
@@ -303,47 +396,69 @@ export const beginInterview = createServerFn({ method: "POST" })
   });
 
 // -------- 4. Submit answer → evaluate + next question ---------------------
-type EvalResult = {
-  technicalAccuracy: number;
-  clarity: number;
-  relevance: number;
-  problemSolving: number;
-  communication: number;
-  overallScore: number;
-  strengths: string[];
-  weaknesses: string[];
-  missingConcepts: string[];
-  idealAnswer: string;
-  recommendedFollowUp: string;
-};
+const scoreSchema = z.number().finite().min(0).max(10);
+const feedbackItemsSchema = z.array(limitedText(500)).max(12);
+const evalResultSchema = z.object({
+  technicalAccuracy: scoreSchema,
+  clarity: scoreSchema,
+  relevance: scoreSchema,
+  problemSolving: scoreSchema,
+  communication: scoreSchema,
+  overallScore: scoreSchema,
+  strengths: feedbackItemsSchema,
+  weaknesses: feedbackItemsSchema,
+  missingConcepts: feedbackItemsSchema,
+  idealAnswer: limitedText(8_000),
+  recommendedFollowUp: limitedText(2_000),
+});
+type EvalResult = z.infer<typeof evalResultSchema>;
 
 export const submitAnswer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: { interviewId: string; answer: string }) =>
-    z.object({ interviewId: z.string().uuid(), answer: z.string().min(1) }).parse(data),
+    z
+      .object({
+        interviewId: z.string().uuid(),
+        answer: z.string().trim().min(1).max(10_000),
+      })
+      .parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    await enforceRateLimit(supabase, "submit_answer");
+    const db = await getTrustedDb();
 
-    const { data: interview, error: iErr } = await supabase
+    const { data: interview, error: iErr } = await db
       .from("interviews")
       .select(
-        "id, user_id, role, experience_level, interview_types, plan, context, candidate_profile_id, started_at, duration_minutes",
+        "id, user_id, role, experience_level, interview_types, plan, context, candidate_profile_id, started_at, duration_minutes, status",
       )
       .eq("id", data.interviewId)
       .single();
     if (iErr || !interview) throw new Error(iErr?.message ?? "Interview not found");
     if (interview.user_id !== userId) throw new Error("Forbidden");
+    if (interview.status !== "active") throw new Error("This interview is no longer active");
+    const guardedContext = (interview.context ?? {}) as Record<string, unknown>;
+    if (typeof guardedContext.interviewBeganAt !== "string") {
+      throw new Error("Begin the interview before submitting an answer");
+    }
+    const deadlineMs =
+      new Date(guardedContext.interviewBeganAt).getTime() +
+      Math.max(5, Number(interview.duration_minutes ?? 30)) * 60_000;
+    if (!Number.isFinite(deadlineMs) || Date.now() > deadlineMs + 60_000) {
+      throw new Error("The interview time has expired");
+    }
 
     const { data: cp } = interview.candidate_profile_id
-      ? await supabase
+      ? await db
           .from("candidate_profiles")
           .select("parsed")
           .eq("id", interview.candidate_profile_id)
+          .eq("user_id", userId)
           .maybeSingle()
       : { data: null as { parsed: unknown } | null };
 
-    const { data: msgs } = await supabase
+    const { data: msgs } = await db
       .from("interview_messages")
       .select("id, role, content, topic, difficulty, order_index")
       .eq("interview_id", data.interviewId)
@@ -355,7 +470,7 @@ export const submitAnswer = createServerFn({ method: "POST" })
     const nextIdx = messages.length;
 
     // Store the user's answer
-    const { data: userMsg, error: umErr } = await supabase
+    const { data: userMsg, error: umErr } = await db
       .from("interview_messages")
       .insert({
         interview_id: data.interviewId,
@@ -418,6 +533,16 @@ export const submitAnswer = createServerFn({ method: "POST" })
         difficulty: number;
       };
     };
+    const combinedSchema: z.ZodType<Combined> = z.object({
+      evaluation: evalResultSchema,
+      next: z.object({
+        acknowledgement: limitedText(1_000),
+        transition: limitedText(1_000),
+        question: limitedText(2_000).min(1),
+        topic: limitedText(200).min(1),
+        difficulty: z.number().int().min(1).max(5),
+      }),
+    });
     const combined = await generateJson<Combined>({
       system:
         "You are an expert professional interviewer and a private evaluator. Evaluate the candidate's last answer internally, then produce one natural interviewer turn containing an acknowledgement, a transition, and the next adaptive question. The acknowledgement must be grounded in what the candidate actually said; use neutral or corrective language when praise is not earned. Adapt using the interview type, resume, and interview history. Avoid repeating acknowledgement or transition phrases from recent turns. Never reveal scores, evaluation details, hidden reasoning, or unsupported praise to the candidate.",
@@ -465,6 +590,7 @@ Return JSON: {
     "difficulty": number(1-5)
   }
 }`,
+      schema: combinedSchema,
       fallback: {
         evaluation: {
           technicalAccuracy: 5,
@@ -491,7 +617,7 @@ Return JSON: {
 
     // Persist evaluation
     const e = combined.evaluation;
-    await supabase.from("evaluations").insert({
+    const { error: evaluationError } = await db.from("evaluations").insert({
       interview_message_id: userMsg.id,
       interview_id: data.interviewId,
       technical_accuracy: e.technicalAccuracy,
@@ -506,6 +632,7 @@ Return JSON: {
       ideal_answer: e.idealAnswer ?? "",
       recommended_follow_up: e.recommendedFollowUp ?? "",
     });
+    if (evaluationError) throw new Error(`Failed to save evaluation: ${evaluationError.message}`);
 
     // Update interview context + insert next AI question
     const topicScores = { ...(ctx.topicScores ?? {}) };
@@ -514,7 +641,7 @@ Return JSON: {
       topicScores[t] != null ? (topicScores[t] + e.overallScore) / 2 : e.overallScore;
     const topicsCovered = Array.from(new Set([...(ctx.topicsCovered ?? []), combined.next.topic]));
 
-    await supabase
+    const { error: contextError } = await db
       .from("interviews")
       .update({
         context: asJson({
@@ -526,7 +653,10 @@ Return JSON: {
           timePhase,
         }),
       })
-      .eq("id", data.interviewId);
+      .eq("id", data.interviewId)
+      .eq("user_id", userId)
+      .eq("status", "active");
+    if (contextError) throw new Error(`Failed to update interview: ${contextError.message}`);
 
     const interviewerTurn = [
       combined.next.acknowledgement,
@@ -537,7 +667,7 @@ Return JSON: {
       .filter(Boolean)
       .join("\n\n");
 
-    await supabase.from("interview_messages").insert({
+    const { error: nextMessageError } = await db.from("interview_messages").insert({
       interview_id: data.interviewId,
       role: "ai",
       content: interviewerTurn || "Could you elaborate further?",
@@ -545,9 +675,10 @@ Return JSON: {
       difficulty: combined.next.difficulty,
       order_index: nextIdx + 1,
     });
+    if (nextMessageError)
+      throw new Error(`Failed to save next question: ${nextMessageError.message}`);
 
     return {
-      evaluation: e,
       nextQuestion: combined.next.question,
       interviewerTurn: {
         acknowledgement: combined.next.acknowledgement,
@@ -564,21 +695,22 @@ export const endInterview = createServerFn({ method: "POST" })
     z.object({ interviewId: z.string().uuid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { userId } = context;
+    const db = await getTrustedDb();
 
-    const { data: interview } = await supabase
+    const { data: interview } = await db
       .from("interviews")
       .select("id, user_id, role, experience_level")
       .eq("id", data.interviewId)
       .single();
     if (!interview || interview.user_id !== userId) throw new Error("Not found");
 
-    const { data: msgs } = await supabase
+    const { data: msgs } = await db
       .from("interview_messages")
       .select("id, role, content, topic, order_index")
       .eq("interview_id", data.interviewId)
       .order("order_index", { ascending: true });
-    const { data: evals } = await supabase
+    const { data: evals } = await db
       .from("evaluations")
       .select("*")
       .eq("interview_id", data.interviewId);
@@ -624,7 +756,7 @@ export const endInterview = createServerFn({ method: "POST" })
       messageCount: msgs?.length ?? 0,
     };
 
-    const { error: updErr } = await supabase
+    const { error: updErr } = await db
       .from("interviews")
       .update({
         status: "completed",
@@ -633,12 +765,13 @@ export const endInterview = createServerFn({ method: "POST" })
         final_report: asJson(report),
         completed_at: new Date().toISOString(),
       })
-      .eq("id", data.interviewId);
+      .eq("id", data.interviewId)
+      .eq("user_id", userId);
     if (updErr) throw new Error(`Failed to save report: ${updErr.message}`);
 
     // Update profile readiness (rolling avg) — non-fatal
     try {
-      const { data: past } = await supabase
+      const { data: past } = await db
         .from("interviews")
         .select("readiness_score")
         .eq("user_id", userId)
@@ -647,7 +780,7 @@ export const endInterview = createServerFn({ method: "POST" })
         past && past.length
           ? Math.round(past.reduce((a, x) => a + Number(x.readiness_score ?? 0), 0) / past.length)
           : readiness;
-      await supabase.from("profiles").update({ readiness_score: avgReadiness }).eq("id", userId);
+      await db.from("profiles").update({ readiness_score: avgReadiness }).eq("id", userId);
     } catch (e) {
       console.warn("[endInterview] profile readiness update failed", e);
     }
@@ -677,19 +810,45 @@ type Roadmap = {
   steps: RoadmapStep[]; // ordered, prioritized
   quickWins: string[]; // things achievable in <1 day
   practiceInterviewPrompts: string[]; // suggestions for next mock
-  generatedAt: string;
+  generatedAt?: string;
 };
+
+const roadmapResourceSchema = z.object({
+  label: limitedText(500),
+  kind: z.enum(["article", "video", "practice", "book"]),
+});
+const roadmapSchema: z.ZodType<Roadmap> = z.object({
+  summary: limitedText(4_000),
+  targetRole: limitedText(200),
+  priorityFocus: z.array(limitedText(500)).max(8),
+  weakDimensions: z.array(limitedText(200)).max(5),
+  steps: z
+    .array(
+      z.object({
+        title: limitedText(500),
+        why: limitedText(2_000),
+        actions: z.array(limitedText(1_000)).max(8),
+        resources: z.array(roadmapResourceSchema).max(10),
+        estimatedHours: z.number().finite().min(0).max(1_000),
+      }),
+    )
+    .max(8),
+  quickWins: z.array(limitedText(1_000)).max(8),
+  practiceInterviewPrompts: z.array(limitedText(2_000)).max(8),
+  generatedAt: z.string().max(100).optional(),
+});
 
 export const getOrGenerateRoadmap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((data: { interviewId: string; force?: boolean }) =>
-    z.object({ interviewId: z.string().uuid(), force: z.boolean().optional() }).parse(data),
+  .validator((data: { interviewId: string }) =>
+    z.object({ interviewId: z.string().uuid() }).parse(data),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const db = await getTrustedDb();
 
     // Ownership + status check
-    const { data: interview, error: iErr } = await supabase
+    const { data: interview, error: iErr } = await db
       .from("interviews")
       .select(
         "id, user_id, role, experience_level, interview_types, status, final_report, candidate_profile_id",
@@ -701,19 +860,20 @@ export const getOrGenerateRoadmap = createServerFn({ method: "POST" })
     if (interview.status !== "completed")
       throw new Error("Interview must be completed before generating a roadmap");
 
-    // Return cached if present, unless force
-    if (!data.force) {
-      const { data: existing } = await supabase
-        .from("learning_roadmaps")
-        .select("content, updated_at")
-        .eq("interview_id", data.interviewId)
-        .maybeSingle();
-      if (existing?.content) {
-        return { roadmap: existing.content as unknown as Roadmap, cached: true };
-      }
+    // Roadmaps are immutable from the candidate API once generated.
+    const { data: existing } = await db
+      .from("learning_roadmaps")
+      .select("content, updated_at")
+      .eq("interview_id", data.interviewId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (existing?.content) {
+      return { roadmap: existing.content as unknown as Roadmap, cached: true };
     }
 
-    const { data: evals } = await supabase
+    await enforceRateLimit(supabase, "roadmap");
+
+    const { data: evals } = await db
       .from("evaluations")
       .select(
         "weaknesses, missing_concepts, strengths, technical_accuracy, clarity, relevance, problem_solving, communication, overall_score",
@@ -723,10 +883,11 @@ export const getOrGenerateRoadmap = createServerFn({ method: "POST" })
     if (evalsList.length === 0) throw new Error("No evaluations to build a roadmap from");
 
     const { data: cp } = interview.candidate_profile_id
-      ? await supabase
+      ? await db
           .from("candidate_profiles")
           .select("parsed")
           .eq("id", interview.candidate_profile_id)
+          .eq("user_id", userId)
           .maybeSingle()
       : { data: null as { parsed: unknown } | null };
 
@@ -807,6 +968,7 @@ Return JSON with this shape:
   "quickWins": string[],      // 2-4 items achievable in under a day
   "practiceInterviewPrompts": string[]  // 3-5 specific mock-question prompts to try in the next session
 }`,
+      schema: roadmapSchema,
       fallback: {
         summary: `Focus on ${weakDimensions.join(", ")} for your ${interview.role} interviews.`,
         targetRole: interview.role,
@@ -837,7 +999,7 @@ Return JSON with this shape:
     roadmap.targetRole = interview.role;
 
     // Upsert (unique on interview_id)
-    const { error: upErr } = await supabase
+    const { error: upErr } = await db
       .from("learning_roadmaps")
       .upsert(
         { user_id: userId, interview_id: data.interviewId, content: asJson(roadmap) },

@@ -112,6 +112,14 @@ function ResumePage() {
 
   const upload = async () => {
     if (!file) return;
+    if (file.type !== "application/pdf") {
+      toast.error("Choose a PDF resume.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Resume must be 10 MB or smaller.");
+      return;
+    }
     setBusy(true);
     advanceStage();
     try {

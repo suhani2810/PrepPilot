@@ -1,0 +1,4 @@
+No visual deviations from the source deck are planned.
+All seven source slides are reused one-to-one.
+Only inherited text and speaker notes are rewritten to describe implemented PrepPilot features precisely.
+

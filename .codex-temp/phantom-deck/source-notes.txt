@@ -1,0 +1,11 @@
+Deck content is grounded in the current PrepPilot repository.
+
+Primary local sources:
+- C:\Users\KIIT\Desktop\PrepPilot\README.md
+- C:\Users\KIIT\Desktop\PrepPilot\src\routes\_authenticated\interview.new.tsx
+- C:\Users\KIIT\Desktop\PrepPilot\src\routes\_authenticated\interview.$interviewId.index.tsx
+- C:\Users\KIIT\Desktop\PrepPilot\src\routes\_authenticated\interview.$interviewId.report.tsx
+- C:\Users\KIIT\Desktop\PrepPilot\src\routes\_authenticated\interview.$interviewId.roadmap.tsx
+- C:\Users\KIIT\Desktop\PrepPilot\src\lib\interview.functions.ts
+
+No external statistics, claims, or third-party visual assets were used.

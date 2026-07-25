@@ -1,0 +1,140 @@
+{"kind":"deck","id":"pr/ufqkpi","name":"Deck"}
+{"kind":"layout","layoutId":"af95241a-2bd7-4773-a32d-2edc538f213d","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"ffbee85a-6956-4d26-ad2e-b1abe95939b3","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/etmvas","slide":1,"title":"GEN AI · PROBLEM STATEMENT 2","textShapes":10}
+{"kind":"shape","id":"sh/w3q14nmx","slide":1,"bbox":[0,0,18,720]}
+{"kind":"textbox","id":"sh/v2hkvi5c","slide":1,"text":"GEN AI · PROBLEM STATEMENT 2","textPreview":"GEN AI · PROBLEM STATEMENT 2","textChars":28,"textLines":1,"bbox":[70,58,500,35]}
+{"kind":"textbox","id":"sh/a18j2d4r","slide":1,"text":"PrepPilot","textPreview":"PrepPilot","textChars":9,"textLines":1,"bbox":[70,176,720,105]}
+{"kind":"textbox","id":"sh/90z2tsnm","slide":1,"text":"From resume to ready.","textPreview":"From resume to ready.","textChars":21,"textLines":1,"bbox":[74,300,650,54]}
+{"kind":"textbox","id":"sh/8zq10nm1","slide":1,"text":"An adaptive AI mock interview platform","textPreview":"An adaptive AI mock interview platform","textChars":38,"textLines":1,"bbox":[74,380,690,48]}
+{"kind":"shape","id":"sh/nyxkri5g","slide":1,"bbox":[880,110,0,500]}
+{"kind":"textbox","id":"sh/mxojyd4v","slide":1,"text":"TEAM","textPreview":"TEAM","textChars":4,"textLines":1,"bbox":[930,150,240,30]}
+{"kind":"textbox","id":"sh/lcf2p8na","slide":1,"text":"PHANTOM","textPreview":"PHANTOM","textChars":7,"textLines":1,"bbox":[930,190,260,55]}
+{"kind":"textbox","id":"sh/0b61w3mp","slide":1,"text":"Team Leader","textPreview":"Team Leader","textChars":11,"textLines":1,"bbox":[930,330,240,28]}
+{"kind":"textbox","id":"sh/29g7i5gr","slide":1,"text":"Suhani Mahajan","textPreview":"Suhani Mahajan","textChars":14,"textLines":1,"bbox":[930,365,260,40]}
+{"kind":"textbox","id":"sh/3ap8rqhc","slide":1,"text":"Team Member","textPreview":"Team Member","textChars":11,"textLines":1,"bbox":[930,450,240,28]}
+{"kind":"textbox","id":"sh/4bypkvyx","slide":1,"text":"Divyam Madan","textPreview":"Divyam Madan","textChars":12,"textLines":1,"bbox":[930,485,260,40]}
+{"kind":"notes","id":"nt/etmvas","slide":1,"text":"Introduce Team Phantom and PrepPilot. State that the selected track is Gen AI and the challenge is to build an AI mock interview platform. Position PrepPilot as a personalised practice environment rather than a fixed question bank.\n\n[Sources]\n- PrepPilot project repository: README.md and current implementation"}
+{"kind":"slide","id":"sl/tdlk2r","slide":2,"title":"PREPPILOT · TEAM PHANTOM","textShapes":14}
+{"kind":"textbox","id":"sh/hofah476","slide":2,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/ulobmpof","slide":2,"text":"Interview practice rarely feels like the real thing","textPreview":"Interview practice rarely feels like the real thing","textChars":51,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/fmxsfup0","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"textbox","id":"sh/orqtcz6x","slide":2,"text":"Candidates often practise with generic questions, receive little context-aware feedback, and cannot see what to improve next.","textPreview":"Candidates often practise with generic questions, receive little context-aware feedback, and cannot see what to improve next.","textChars":125,"textLines":1,"bbox":[56,172,1080,92]}
+{"kind":"shape","id":"sh/pszal47i","slide":2,"bbox":[424,330,0,255]}
+{"kind":"shape","id":"sh/2pobapor","slide":2,"bbox":[816,330,0,255]}
+{"kind":"textbox","id":"sh/3qhsjupc","slide":2,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[56,330,70,34]}
+{"kind":"textbox","id":"sh/kvm9gf6d","slide":2,"text":"Generic","textPreview":"Generic","textChars":7,"textLines":1,"bbox":[56,385,300,48]}
+{"kind":"textbox","id":"sh/5wva907y","slide":2,"text":"The same questions ignore the candidate’s resume, target role and job description.","textPreview":"The same questions ignore the candidate’s resume, target role and job description.","textChars":82,"textLines":1,"bbox":[56,455,315,112]}
+{"kind":"textbox","id":"sh/hwbe9c3u","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[448,330,70,34]}
+{"kind":"textbox","id":"sh/wbid0729","slide":2,"text":"Static","textPreview":"Static","textChars":6,"textLines":1,"bbox":[448,385,300,48]}
+{"kind":"textbox","id":"sh/va9c72lo","slide":2,"text":"A fixed sequence cannot follow up, change difficulty or react to answer depth.","textPreview":"A fixed sequence cannot follow up, change difficulty or react to answer depth.","textChars":78,"textLines":1,"bbox":[448,455,315,112]}
+{"kind":"textbox","id":"sh/u90vyxkj","slide":2,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[840,330,70,34]}
+{"kind":"textbox","id":"sh/50bedc36","slide":2,"text":"Unclear","textPreview":"Unclear","textChars":7,"textLines":1,"bbox":[840,385,300,48]}
+{"kind":"textbox","id":"sh/4z2d472l","slide":2,"text":"A score alone does not translate into a focused plan for improvement.","textPreview":"A score alone does not translate into a focused plan for improvement.","textChars":69,"textLines":1,"bbox":[840,455,315,112]}
+{"kind":"textbox","id":"sh/jytwb2l0","slide":2,"text":"The gap: realistic practice must adapt in real time.","textPreview":"The gap: realistic practice must adapt in real time.","textChars":52,"textLines":1,"bbox":[56,622,820,38]}
+{"kind":"notes","id":"nt/tdlk2r","slide":2,"text":"Explain the three problems: generic practice, static questioning and unclear next steps. Emphasise that interviews are conversations, so a useful mock interview must react to the candidate rather than replay a fixed list.\n\n[Sources]\n- PrepPilot project repository: README.md and current implementation"}
+{"kind":"slide","id":"sl/ulv8y7","slide":3,"title":"PREPPILOT · TEAM PHANTOM","textShapes":12}
+{"kind":"textbox","id":"sh/nu9oryxk","slide":3,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/ov2503e5","slide":3,"text":"PrepPilot turns candidate context into a live interview","textPreview":"PrepPilot turns candidate context into a live interview","textChars":55,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/pwb6t8fq","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"textbox","id":"sh/axkn2dwb","slide":3,"text":"One connected experience","textPreview":"One connected experience","textChars":24,"textLines":1,"bbox":[56,190,420,42]}
+{"kind":"textbox","id":"sh/bytovixw","slide":3,"text":"Upload once. Practise realistically. Improve with direction.","textPreview":"Upload once. Practise realistically. Improve with direction.","textChars":60,"textLines":1,"bbox":[56,250,500,145]}
+{"kind":"textbox","id":"sh/cz254ne1","slide":3,"text":"The AI interviewer uses the resume, selected role, interview focus, history and remaining time to shape every turn.","textPreview":"The AI interviewer uses the resume, selected role, interview focus, history and remaining time to shape every turn.","textChars":115,"textLines":1,"bbox":[56,430,500,120]}
+{"kind":"shape","id":"sh/x0b6xsfm","slide":3,"bbox":[650,220,0,360]}
+{"kind":"shape","id":"sh/y1kn6xw7","slide":3,"bbox":[710,190,470,115]}
+{"kind":"textbox","id":"sh/z2dozixs","slide":3,"text":"CONTEXT","textPreview":"CONTEXT","textChars":7,"textLines":1,"bbox":[742,210,180,26]}
+{"kind":"textbox","id":"sh/bepsfepc","slide":3,"text":"Resume + role + job description","textPreview":"Resume + role + job description","textChars":31,"textLines":1,"bbox":[742,245,400,40]}
+{"kind":"shape","id":"sh/adgb6tor","slide":3,"bbox":[710,340,470,115]}
+{"kind":"textbox","id":"sh/xg7ahon2","slide":3,"text":"CONVERSATION","textPreview":"CONVERSATION","textChars":12,"textLines":1,"bbox":[742,360,180,26]}
+{"kind":"textbox","id":"sh/cfyt8j6x","slide":3,"text":"Adaptive Voice or Text interview","textPreview":"Adaptive Voice or Text interview","textChars":32,"textLines":1,"bbox":[742,395,400,40]}
+{"kind":"shape","id":"sh/napsbep0","slide":3,"bbox":[710,490,470,115]}
+{"kind":"textbox","id":"sh/29gr29of","slide":3,"text":"IMPROVEMENT","textPreview":"IMPROVEMENT","textChars":11,"textLines":1,"bbox":[742,510,180,26]}
+{"kind":"textbox","id":"sh/pc7ado76","slide":3,"text":"Report + personalised roadmap","textPreview":"Report + personalised roadmap","textChars":29,"textLines":1,"bbox":[742,545,400,40]}
+{"kind":"notes","id":"nt/ulv8y7","slide":3,"text":"Present PrepPilot as one connected loop. Candidate context powers the interview; the adaptive conversation captures performance; the report and roadmap convert performance into action.\n\n[Sources]\n- PrepPilot project repository: README.md and current implementation"}
+{"kind":"slide","id":"sl/1te0zl","slide":4,"title":"PREPPILOT · TEAM PHANTOM","textShapes":20}
+{"kind":"textbox","id":"sh/wfid4nel","slide":4,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/be9wvix0","slide":4,"text":"The candidate journey stays simple from start to insight","textPreview":"The candidate journey stays simple from start to insight","textChars":56,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/ad0v2dwf","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"textbox","id":"sh/l4be1cv2","slide":4,"text":"Five steps connect preparation, practice and improvement.","textPreview":"Five steps connect preparation, practice and improvement.","textChars":57,"textLines":1,"bbox":[56,150,840,40]}
+{"kind":"shape","id":"sh/k32x87eh","slide":4,"bbox":[178,306,188,0]}
+{"kind":"shape","id":"sh/j29wz2dw","slide":4,"bbox":[405,306,188,0]}
+{"kind":"shape","id":"sh/y10v6xwb","slide":4,"bbox":[632,306,188,0]}
+{"kind":"shape","id":"sh/t8be5cvy","slide":4,"bbox":[859,306,188,0]}
+{"kind":"shape","id":"sh/872xc7ed","slide":4,"bbox":[110,272,68,68]}
+{"kind":"textbox","id":"sh/2tsbmls3","slide":4,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[110,287,68,36]}
+{"kind":"textbox","id":"sh/3u1sf6to","slide":4,"text":"Upload","textPreview":"Upload","textChars":6,"textLines":1,"bbox":[55,370,178,42]}
+{"kind":"textbox","id":"sh/4vatoba9","slide":4,"text":"Build a structured candidate profile from the resume.","textPreview":"Build a structured candidate profile from the resume.","textChars":53,"textLines":1,"bbox":[55,420,178,100]}
+{"kind":"shape","id":"sh/pwjahgre","slide":4,"bbox":[337,272,68,68]}
+{"kind":"textbox","id":"sh/qhcbqlsz","slide":4,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[337,287,68,36]}
+{"kind":"textbox","id":"sh/rilsjq9k","slide":4,"text":"Configure","textPreview":"Configure","textChars":9,"textLines":1,"bbox":[282,370,178,42]}
+{"kind":"textbox","id":"sh/cjutsva5","slide":4,"text":"Choose role, level, focus, duration and mode.","textPreview":"Choose role, level, focus, duration and mode.","textChars":45,"textLines":1,"bbox":[282,420,178,100]}
+{"kind":"shape","id":"sh/dk3al0rq","slide":4,"bbox":[564,272,68,68]}
+{"kind":"textbox","id":"sh/6l8rehsv","slide":4,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[564,287,68,36]}
+{"kind":"textbox","id":"sh/7mhs7mtg","slide":4,"text":"Interview","textPreview":"Interview","textChars":9,"textLines":1,"bbox":[509,370,178,42]}
+{"kind":"textbox","id":"sh/v6x8fi98","slide":4,"text":"Answer naturally in Voice or Text mode.","textPreview":"Answer naturally in Voice or Text mode.","textChars":39,"textLines":1,"bbox":[509,420,178,100]}
+{"kind":"shape","id":"sh/a5476x8n","slide":4,"bbox":[791,272,68,68]}
+{"kind":"textbox","id":"sh/xsfqhsre","slide":4,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[791,287,68,36]}
+{"kind":"textbox","id":"sh/wr6p8nqt","slide":4,"text":"Evaluate","textPreview":"Evaluate","textChars":8,"textLines":1,"bbox":[736,370,178,42]}
+{"kind":"textbox","id":"sh/n2dobi9w","slide":4,"text":"Review five performance dimensions and question-level feedback.","textPreview":"Review five performance dimensions and question-level feedback.","textChars":63,"textLines":1,"bbox":[736,420,178,100]}
+{"kind":"shape","id":"sh/m1472d8r","slide":4,"bbox":[1018,272,68,68]}
+{"kind":"textbox","id":"sh/94v6dsr2","slide":4,"text":"5","textPreview":"5","textChars":1,"textLines":1,"bbox":[1018,287,68,36]}
+{"kind":"textbox","id":"sh/o3mp4nqh","slide":4,"text":"Improve","textPreview":"Improve","textChars":7,"textLines":1,"bbox":[963,370,178,42]}
+{"kind":"textbox","id":"sh/7yh8n2pg","slide":4,"text":"Follow a personalised learning roadmap and practise again.","textPreview":"Follow a personalised learning roadmap and practise again.","textChars":58,"textLines":1,"bbox":[963,420,178,100]}
+{"kind":"textbox","id":"sh/6xo7eh8v","slide":4,"text":"Selected mode remains locked for the entire interview session.","textPreview":"Selected mode remains locked for the entire interview session.","textChars":62,"textLines":1,"bbox":[56,610,920,34]}
+{"kind":"notes","id":"nt/1te0zl","slide":4,"text":"Walk left to right through the candidate experience. Mention that the candidate selects Voice or Text before starting and the mode stays locked during the session, keeping the interview consistent.\n\n[Sources]\n- PrepPilot project repository: README.md and current implementation"}
+{"kind":"slide","id":"sl/y3m4dr","slide":5,"title":"PREPPILOT · TEAM PHANTOM","textShapes":16}
+{"kind":"textbox","id":"sh/vuds76tc","slide":5,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/wvmtgbax","slide":5,"text":"The GenAI engine adapts every interviewer turn","textPreview":"The GenAI engine adapts every interviewer turn","textChars":46,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/xwva9wbi","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"textbox","id":"sh/ix4bi1s3","slide":5,"text":"Context flows through a server-side orchestration layer—API keys never reach the browser.","textPreview":"Context flows through a server-side orchestration layer—API keys never reach the browser.","textChars":89,"textLines":1,"bbox":[56,150,1000,42]}
+{"kind":"shape","id":"sh/jydsb6to","slide":5,"bbox":[306,340,70,0]}
+{"kind":"shape","id":"sh/kzmtkba9","slide":5,"bbox":[604,340,70,0]}
+{"kind":"shape","id":"sh/50fadgbu","slide":5,"bbox":[902,340,70,0]}
+{"kind":"shape","id":"sh/61obmlsz","slide":5,"bbox":[78,250,230,185]}
+{"kind":"textbox","id":"sh/72xsfqtk","slide":5,"text":"CANDIDATE CONTEXT","textPreview":"CANDIDATE CONTEXT","textChars":17,"textLines":1,"bbox":[100,276,186,40]}
+{"kind":"textbox","id":"sh/v6t4bepg","slide":5,"text":"Resume · role · JD\nfocus · history · time","textPreview":"Resume · role · JD | focus · history · time","textChars":41,"textLines":2,"bbox":[98,333,190,78]}
+{"kind":"shape","id":"sh/a5k329ov","slide":5,"bbox":[376,250,230,185]}
+{"kind":"textbox","id":"sh/h8bmdo76","slide":5,"text":"AI ORCHESTRATOR","textPreview":"AI ORCHESTRATOR","textChars":15,"textLines":1,"bbox":[398,276,186,40]}
+{"kind":"textbox","id":"sh/w72l4j61","slide":5,"text":"Acknowledgement\ntransition · next question","textPreview":"Acknowledgement | transition · next question","textChars":42,"textLines":2,"bbox":[396,333,190,78]}
+{"kind":"shape","id":"sh/n2tk7up4","slide":5,"bbox":[674,250,230,185]}
+{"kind":"textbox","id":"sh/m103y9oj","slide":5,"text":"INTERVIEW MODES","textPreview":"INTERVIEW MODES","textChars":15,"textLines":1,"bbox":[696,276,186,40]}
+{"kind":"textbox","id":"sh/94bm947a","slide":5,"text":"Voice: STT + TTS\nText: typed conversation","textPreview":"Voice: STT + TTS | Text: typed conversation","textChars":41,"textLines":2,"bbox":[694,333,190,78]}
+{"kind":"shape","id":"sh/832l0z6p","slide":5,"bbox":[972,250,230,185]}
+{"kind":"textbox","id":"sh/ryd4jy5o","slide":5,"text":"OUTPUT LOOP","textPreview":"OUTPUT LOOP","textChars":11,"textLines":1,"bbox":[994,276,186,40]}
+{"kind":"textbox","id":"sh/6x43ato3","slide":5,"text":"Evaluation report\nlearning roadmap","textPreview":"Evaluation report | learning roadmap","textChars":34,"textLines":2,"bbox":[992,333,190,78]}
+{"kind":"textbox","id":"sh/2t87ix8b","slide":5,"text":"TanStack Start + React","textPreview":"TanStack Start + React","textChars":22,"textLines":1,"bbox":[80,545,250,32]}
+{"kind":"textbox","id":"sh/3uhob2pw","slide":5,"text":"Supabase Auth · Postgres · Storage","textPreview":"Supabase Auth · Postgres · Storage","textChars":34,"textLines":1,"bbox":[384,545,350,32]}
+{"kind":"textbox","id":"sh/ovqpk7q1","slide":5,"text":"Groq / OpenRouter · server-side","textPreview":"Groq / OpenRouter · server-side","textChars":31,"textLines":1,"bbox":[806,545,380,32]}
+{"kind":"textbox","id":"sh/pwz6dc7m","slide":5,"text":"Question selection also changes with answer depth and remaining interview time.","textPreview":"Question selection also changes with answer depth and remaining interview time.","textChars":79,"textLines":1,"bbox":[80,618,1030,34]}
+{"kind":"notes","id":"nt/y3m4dr","slide":5,"text":"Explain the architecture at a high level. Candidate context enters a server-side AI orchestrator. It produces a natural interviewer response containing acknowledgement, transition and question. Voice and Text use the same orchestration, while evaluation and reports remain separate.\n\n[Sources]\n- PrepPilot project repository: README.md and current implementation"}
+{"kind":"slide","id":"sl/t4gmqx","slide":6,"title":"PREPPILOT · TEAM PHANTOM","textShapes":16}
+{"kind":"textbox","id":"sh/t0zm1sjm","slide":6,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/6xo3qxkv","slide":6,"text":"Realism during the interview, direction after it","textPreview":"Realism during the interview, direction after it","textChars":48,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/7yx4z21g","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"shape","id":"sh/kv6lon2p","slide":6,"bbox":[640,190,0,390]}
+{"kind":"shape","id":"sh/lwfmxsja","slide":6,"bbox":[56,385,1168,0]}
+{"kind":"textbox","id":"sh/yto3mdkz","slide":6,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[56,190,60,28]}
+{"kind":"textbox","id":"sh/jux4vi14","slide":6,"text":"Conversational","textPreview":"Conversational","textChars":14,"textLines":1,"bbox":[56,235,470,40]}
+{"kind":"textbox","id":"sh/4ral0729","slide":6,"text":"Acknowledgement, transition and follow-up make each turn sound professional—not robotic.","textPreview":"Acknowledgement, transition and follow-up make each turn sound professional—not robotic.","textChars":88,"textLines":1,"bbox":[56,290,500,90]}
+{"kind":"textbox","id":"sh/5sjm9cje","slide":6,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[686,190,60,28]}
+{"kind":"textbox","id":"sh/9sr6dgvq","slide":6,"text":"Time-aware","textPreview":"Time-aware","textChars":10,"textLines":1,"bbox":[686,235,470,40]}
+{"kind":"textbox","id":"sh/8rip4bu5","slide":6,"text":"The interviewer balances technical, resume and behavioural topics as time changes.","textPreview":"The interviewer balances technical, resume and behavioural topics as time changes.","textChars":82,"textLines":1,"bbox":[686,290,500,90]}
+{"kind":"textbox","id":"sh/nq9ob6dk","slide":6,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[56,425,60,28]}
+{"kind":"textbox","id":"sh/mpg721cf","slide":6,"text":"Evidence-based","textPreview":"Evidence-based","textChars":14,"textLines":1,"bbox":[56,470,470,40]}
+{"kind":"textbox","id":"sh/l4769wvu","slide":6,"text":"Each answer is reviewed across accuracy, clarity, relevance, problem solving and communication.","textPreview":"Each answer is reviewed across accuracy, clarity, relevance, problem solving and communication.","textChars":95,"textLines":1,"bbox":[56,525,500,90]}
+{"kind":"textbox","id":"sh/03yp0ru9","slide":6,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[686,425,60,28]}
+{"kind":"textbox","id":"sh/z2po76do","slide":6,"text":"Actionable","textPreview":"Actionable","textChars":10,"textLines":1,"bbox":[686,470,470,40]}
+{"kind":"textbox","id":"sh/y1g7y1c3","slide":6,"text":"Candidates receive strengths, gaps, ideal-answer guidance and a prioritised learning roadmap.","textPreview":"Candidates receive strengths, gaps, ideal-answer guidance and a prioritised learning roadmap.","textChars":93,"textLines":1,"bbox":[686,525,500,90]}
+{"kind":"textbox","id":"sh/50bql0by","slide":6,"text":"The result: a repeatable practice loop built around the individual candidate.","textPreview":"The result: a repeatable practice loop built around the individual candidate.","textChars":77,"textLines":1,"bbox":[56,625,1030,38]}
+{"kind":"notes","id":"nt/t4gmqx","slide":6,"text":"Summarise the differentiators. During the interview, PrepPilot focuses on realism and time-aware adaptation. Afterward, it produces structured evidence and clear next steps, creating a repeatable improvement loop.\n\n[Sources]\n- PrepPilot project repository: README.md and current implementation"}
+{"kind":"slide","id":"sl/y2juue","slide":7,"title":"TEAM PHANTOM · PREPPILOT","textShapes":7}
+{"kind":"shape","id":"sh/6lo7ed4f","slide":7,"bbox":[0,0,18,720]}
+{"kind":"textbox","id":"sh/tof6psn6","slide":7,"text":"TEAM PHANTOM · PREPPILOT","textPreview":"TEAM PHANTOM · PREPPILOT","textChars":24,"textLines":1,"bbox":[70,58,460,32]}
+{"kind":"textbox","id":"sh/sn6pgnml","slide":7,"text":"Practice that adapts.\nFeedback that guides.","textPreview":"Practice that adapts. | Feedback that guides.","textChars":43,"textLines":2,"bbox":[70,170,900,200]}
+{"kind":"textbox","id":"sh/fqxori5w","slide":7,"text":"From resume to ready.","textPreview":"From resume to ready.","textChars":21,"textLines":1,"bbox":[75,408,600,48]}
+{"kind":"shape","id":"sh/upo7id4b","slide":7,"bbox":[70,520,1080,0]}
+{"kind":"textbox","id":"sh/hcf6tsn2","slide":7,"text":"Suhani Mahajan · Team Leader","textPreview":"Suhani Mahajan · Team Leader","textChars":28,"textLines":1,"bbox":[75,560,430,34]}
+{"kind":"textbox","id":"sh/gb6pknmh","slide":7,"text":"Divyam Madan · Team Member","textPreview":"Divyam Madan · Team Member","textChars":26,"textLines":1,"bbox":[75,605,430,34]}
+{"kind":"textbox","id":"sh/3eh8v258","slide":7,"text":"GEN AI · PROBLEM STATEMENT 2","textPreview":"GEN AI · PROBLEM STATEMENT 2","textChars":28,"textLines":1,"bbox":[770,582,380,32]}
+{"kind":"textbox","id":"sh/2d87mx4n","slide":7,"text":"Questions?","textPreview":"Questions?","textChars":10,"textLines":1,"bbox":[980,52,200,38]}
+{"kind":"notes","id":"nt/y2juue","slide":7,"text":"Close by restating the value: PrepPilot adapts practice to the individual and turns interview performance into a concrete improvement plan. Invite the audience to view the live demonstration or ask questions.\n\n[Sources]\n- PrepPilot project repository: README.md and current implementation"}

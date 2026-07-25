@@ -288,11 +288,12 @@ export function VoiceAnswerRecorder({
             formData.append("audio", audioFile);
             const { data: sessionData } = await supabase.auth.getSession();
             const accessToken = sessionData.session?.access_token;
+            if (!accessToken) throw new Error("Your session expired. Sign in again and retry.");
             const response = await fetch("/api/transcribe", {
               method: "POST",
               body: formData,
               signal: controller.signal,
-              headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+              headers: { Authorization: `Bearer ${accessToken}` },
             });
             const responseText = await response.text();
             let payload: { transcript?: unknown; error?: string };
@@ -313,6 +314,16 @@ export function VoiceAnswerRecorder({
                 throw new Error("The transcription service is busy. Wait a moment and retry.");
               }
               if (response.status >= 500) {
+                if (payload.error?.includes("GROQ_API_KEY is missing")) {
+                  throw new Error(
+                    "Voice transcription is not configured on this deployment. Add GROQ_API_KEY to the server environment, then restart or redeploy PrepPilot.",
+                  );
+                }
+                if (payload.error?.includes("Groq authentication failed")) {
+                  throw new Error(
+                    "The transcription provider credentials are invalid. Update the server GROQ_API_KEY, then restart or redeploy PrepPilot.",
+                  );
+                }
                 throw new Error("The transcription service is unavailable. Please retry shortly.");
               }
               throw new Error(payload.error || "Transcription failed.");
@@ -374,13 +385,7 @@ export function VoiceAnswerRecorder({
   }, [processAnswer, recordedFile, recordingDurationSeconds]);
 
   const handleStart = async () => {
-    if (
-      disabled ||
-      isBusy ||
-      isRecording ||
-      inFlightRef.current
-    )
-      return;
+    if (disabled || isBusy || isRecording || inFlightRef.current) return;
     cancelSpeech();
     setErrorKind(null);
     setTranscriptionError(null);

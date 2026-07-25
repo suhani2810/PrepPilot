@@ -1,0 +1,19 @@
+Content is grounded in the current PrepPilot repository rather than external claims.
+
+Primary sources:
+- README.md
+- FEATURE_STATUS.md, cross-checked against current implementation where its voice-mode note is outdated
+- src/routes/_authenticated/resume.tsx
+- src/routes/_authenticated/interview.new.tsx
+- src/routes/_authenticated/interview.$interviewId.index.tsx
+- src/routes/_authenticated/interview.$interviewId.report.tsx
+- src/routes/_authenticated/interview.$interviewId.roadmap.tsx
+- src/routes/_authenticated/dashboard.tsx
+- src/routes/_authenticated/history.tsx
+- src/lib/interview.functions.ts
+- src/lib/transcribe.server.ts
+- src/start.ts
+- supabase/migrations/
+
+No external statistics or third-party visual assets are used.
+

@@ -5,7 +5,7 @@ function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith("sb_publishable_") || value.startsWith("sb_secret_");
 }
 
-async function verifyAuth(request: Request): Promise<{ userId: string } | Response> {
+async function verifyAuth(request: Request): Promise<Response | { userId: string; supabase: any }> {
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
@@ -41,10 +41,8 @@ async function verifyAuth(request: Request): Promise<{ userId: string } | Respon
 
   try {
     const { data, error } = await supabase.auth.getClaims(token);
-    if (error || !data?.claims?.sub) {
-      return jsonError("Unauthorized", 401);
-    }
-    return { userId: data.claims.sub as string };
+    if (error || !data?.claims?.sub) return jsonError("Unauthorized", 401);
+    return { userId: data.claims.sub as string, supabase };
   } catch {
     return jsonError("Unauthorized", 401);
   }
@@ -100,7 +98,12 @@ function isAcceptedAudioFile(file: File) {
   return ALLOWED_AUDIO_MIME_TYPES.has(fileType) || ALLOWED_AUDIO_EXTENSIONS.has(extension);
 }
 
-function normalizeTranscriptResponse(data: any): TranscriptionResponse {
+function asRecord(value: unknown): Record<string, unknown> {
+  return value != null && typeof value === "object" ? (value as Record<string, unknown>) : {};
+}
+
+function normalizeTranscriptResponse(value: unknown): TranscriptionResponse {
+  const data = asRecord(value);
   const transcript = typeof data.text === "string" ? data.text : "";
   const durationSeconds =
     typeof data.duration === "number"
@@ -110,19 +113,25 @@ function normalizeTranscriptResponse(data: any): TranscriptionResponse {
         : null;
   const language = typeof data.language === "string" ? data.language : null;
   const segments = Array.isArray(data.segments)
-    ? data.segments.map((segment: any) => ({
-        id: typeof segment.id === "number" ? segment.id : undefined,
-        start: typeof segment.start === "number" ? segment.start : 0,
-        end: typeof segment.end === "number" ? segment.end : 0,
-        text: typeof segment.text === "string" ? segment.text : "",
-      }))
+    ? data.segments.map((segment) => {
+        const item = asRecord(segment);
+        return {
+          id: typeof item.id === "number" ? item.id : undefined,
+          start: typeof item.start === "number" ? item.start : 0,
+          end: typeof item.end === "number" ? item.end : 0,
+          text: typeof item.text === "string" ? item.text : "",
+        };
+      })
     : [];
   const words = Array.isArray(data.words)
-    ? data.words.map((word: any) => ({
-        word: typeof word.word === "string" ? word.word : "",
-        start: typeof word.start === "number" ? word.start : 0,
-        end: typeof word.end === "number" ? word.end : 0,
-      }))
+    ? data.words.map((word) => {
+        const item = asRecord(word);
+        return {
+          word: typeof item.word === "string" ? item.word : "",
+          start: typeof item.start === "number" ? item.start : 0,
+          end: typeof item.end === "number" ? item.end : 0,
+        };
+      })
     : [];
 
   return {
@@ -141,6 +150,20 @@ export async function handleTranscribeRequest(request: Request): Promise<Respons
 
   const auth = await verifyAuth(request);
   if (auth instanceof Response) return auth;
+  const rateLimitClient = auth.supabase as unknown as {
+    rpc: (
+      name: string,
+      args: Record<string, unknown>,
+    ) => PromiseLike<{ data: unknown; error: unknown }>;
+  };
+  const { data: allowed, error: rateLimitError } = await rateLimitClient.rpc("consume_rate_limit", {
+    p_action: "transcribe",
+  });
+  if (rateLimitError) {
+    console.error("[security] transcription rate-limit check failed", rateLimitError);
+    return jsonError("Security controls are unavailable. Please retry shortly.", 503);
+  }
+  if (allowed !== true) return jsonError("Too many transcription requests. Try again later.", 429);
 
   const contentType = request.headers.get("content-type") ?? "";
   if (!contentType.toLowerCase().includes("multipart/form-data")) {
@@ -181,13 +204,15 @@ export async function handleTranscribeRequest(request: Request): Promise<Respons
   }
 
   const client = new Groq({ apiKey });
+  const transcriptionModel =
+    process.env.GROQ_TRANSCRIPTION_MODEL?.trim() || "whisper-large-v3-turbo";
 
-  let transcriptionResponse: any;
+  let transcriptionResponse: unknown;
 
   try {
     transcriptionResponse = await client.audio.transcriptions.create({
       file: audioFile,
-      model: "whisper-large-v3-turbo",
+      model: transcriptionModel,
       language: "en",
       response_format: "verbose_json",
       temperature: 0,

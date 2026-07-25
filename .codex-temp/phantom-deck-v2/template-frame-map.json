@@ -1,0 +1,96 @@
+{
+  "outputSlides": [
+    {
+      "outputSlide": 1,
+      "sourceSlide": 1,
+      "narrativeRole": "opening title",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "action": "rewrite",
+          "shapeIds": ["sh/547294r6", "sh/k3yl0zql", "sh/7qp4be9c", "sh/65g3298r", "sh/sryl4zqx", "sh/fu94fe98", "sh/utg3698n", "sh/wn6dc7eh", "sh/hofulsf2", "sh/ul4vaxgb"],
+          "reason": "Update title-slide copy while preserving the visual identity."
+        }
+      ]
+    },
+    {
+      "outputSlide": 2,
+      "sourceSlide": 2,
+      "narrativeRole": "implemented setup and resume features",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "action": "rewrite",
+          "shapeIds": ["sh/bip8jmho", "sh/9072xkry", "sh/ozy1ofad", "sh/b29kza94", "sh/w3i1sfa9", "sh/r65knqtk", "sh/q5wjelsz", "sh/ove9o7yd", "sh/9wnqhczy", "sh/mtwrmxg7", "sh/nu58f2hs", "sh/wjy9sry9", "sh/xk7qlczu", "sh/ahwrqhgj"],
+          "reason": "Replace generic problem copy with actual resume intelligence and setup controls."
+        }
+      ]
+    },
+    {
+      "outputSlide": 3,
+      "sourceSlide": 3,
+      "narrativeRole": "implemented voice and text experience",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "action": "rewrite",
+          "shapeIds": ["sh/w7ulsvqp", "sh/cza94vmx", "sh/d0jax03i", "sh/298ryl4v", "sh/3ah8rqlg", "sh/obq90bml", "sh/n6ls3alk", "sh/n2l4fq98", "sh/943mhgre", "sh/83ulovat", "sh/a5c3ql8z", "sh/x8nml0ra"],
+          "reason": "Describe the actual interview mode lifecycle, introduction, timer, TTS and transcription."
+        }
+      ]
+    },
+    {
+      "outputSlide": 4,
+      "sourceSlide": 4,
+      "narrativeRole": "end-to-end candidate session flow",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "action": "rewrite",
+          "shapeIds": ["sh/ilwf69kv", "sh/1cj2d8b6", "sh/0ba143al", "sh/rm1k7yt4", "sh/kbm987y5", "sh/5cva1cfq", "sh/i94r6xgz", "sh/w72947yt", "sh/x8vaxsfe", "sh/a5kr2xg3", "sh/g36tgryd", "sh/h4fa9wfy", "sh/p0batw72", "sh/3ytsrmpw", "sh/2xkrih8b", "sh/1wbapc7q", "sh/fu9sn2p0", "sh/et0reh8f", "sh/tsrqlc7u", "sh/sri9s7q9"],
+          "reason": "Make every journey step correspond to the implemented interview lifecycle."
+        }
+      ]
+    },
+    {
+      "outputSlide": 5,
+      "sourceSlide": 5,
+      "narrativeRole": "technical architecture and persistence",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "action": "rewrite",
+          "shapeIds": ["sh/pkr6tgjy", "sh/dgbulwnm", "sh/cf2tcr61", "sh/z2tcnm5s", "sh/m5kbi1oj", "sh/w32dkbuh", "sh/ahkvi1cb", "sh/v2twb6dw", "sh/58vehgvy", "sh/i54fmlc7", "sh/sb6xsvu9", "sh/tcfel0vu", "sh/hgrmpwj2", "sh/gfi5grih", "sh/fe94nm1w", "sh/ud0ne10b"],
+          "reason": "Name the actual framework, server functions, AI providers, Supabase services and session storage."
+        }
+      ]
+    },
+    {
+      "outputSlide": 6,
+      "sourceSlide": 6,
+      "narrativeRole": "adaptive orchestration evaluation and outputs",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "action": "rewrite",
+          "shapeIds": ["sh/svmt4v6t", "sh/yhg7epsj", "sh/zi98nu94", "sh/ml07i9sv", "sh/7m98ru9g", "sh/oryp8fah", "sh/pc76hkr2", "sh/h4bupgn6", "sh/w32twb6l", "sh/v2tcn650", "sh/u1kbu1ov", "sh/5svutgni", "sh/47mt0b6x", "sh/j6dcr65c", "sh/i54bylor", "sh/twfux0ne"],
+          "reason": "Replace high-level differentiators with precise adaptive, scoring, report and roadmap features."
+        }
+      ]
+    },
+    {
+      "outputSlide": 7,
+      "sourceSlide": 7,
+      "narrativeRole": "closing synthesis",
+      "reuseMode": "duplicate-slide",
+      "editTargets": [
+        {
+          "action": "rewrite",
+          "shapeIds": ["sh/cb2tkvap", "sh/dcbud0ra", "sh/ydkbm5sv", "sh/kzmdova1", "sh/l0vuh0rm", "sh/eh0ba1sr", "sh/fi9c369c"],
+          "reason": "Close with the implemented product loop and retain team attribution."
+        }
+      ]
+    }
+  ],
+  "omittedSourceSlides": []
+}

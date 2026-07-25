@@ -1,0 +1,136 @@
+{"kind":"deck","id":"pr/b3bwoy","name":"Deck"}
+{"kind":"layout","layoutId":"/ppt/slideMasters/slideMaster1.xml","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout1.xml","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/m4lbav","slide":1,"title":"GEN AI · PROBLEM STATEMENT 2","textShapes":10}
+{"kind":"shape","id":"sh/v65sjutk","slide":1,"bbox":[0,0,18,720]}
+{"kind":"textbox","id":"sh/p8nqdszy","slide":1,"text":"GEN AI · PROBLEM STATEMENT 2","textPreview":"GEN AI · PROBLEM STATEMENT 2","textChars":28,"textLines":1,"bbox":[70,58,500,35]}
+{"kind":"textbox","id":"sh/47epk7it","slide":1,"text":"PrepPilot","textPreview":"PrepPilot","textChars":9,"textLines":1,"bbox":[70,176,720,105]}
+{"kind":"textbox","id":"sh/filo7ihw","slide":1,"text":"From resume to ready.","textPreview":"From resume to ready.","textChars":21,"textLines":1,"bbox":[74,300,650,54]}
+{"kind":"textbox","id":"sh/uhc7ed0b","slide":1,"text":"Resume-aware · Voice/Text · Adaptive · Measurable","textPreview":"Resume-aware · Voice/Text · Adaptive · Measurable","textChars":49,"textLines":1,"bbox":[74,380,690,48]}
+{"kind":"shape","id":"sh/uxoza1gv","slide":1,"bbox":[880,110,0,500]}
+{"kind":"textbox","id":"sh/g3epgnih","slide":1,"text":"TEAM","textPreview":"TEAM","textChars":4,"textLines":1,"bbox":[930,150,240,30]}
+{"kind":"textbox","id":"sh/7elo3ih0","slide":1,"text":"PHANTOM","textPreview":"PHANTOM","textChars":7,"textLines":1,"bbox":[930,190,260,55]}
+{"kind":"textbox","id":"sh/6dc7ad0f","slide":1,"text":"Team Leader","textPreview":"Team Leader","textChars":11,"textLines":1,"bbox":[930,330,240,28]}
+{"kind":"textbox","id":"sh/g7etczu5","slide":1,"text":"Suhani Mahajan","textPreview":"Suhani Mahajan","textChars":14,"textLines":1,"bbox":[930,365,260,40]}
+{"kind":"textbox","id":"sh/h8nalkbq","slide":1,"text":"Team Member","textPreview":"Team Member","textChars":11,"textLines":1,"bbox":[930,450,240,28]}
+{"kind":"textbox","id":"sh/u5wrapcz","slide":1,"text":"Divyam Madan","textPreview":"Divyam Madan","textChars":12,"textLines":1,"bbox":[930,485,260,40]}
+{"kind":"notes","id":"nt/m4lbav","slide":1,"text":"Introduce Team Phantom and PrepPilot. State that the selected track is Gen AI and Problem Statement 2 is an AI mock interview platform. Preview the product’s differentiators: resume-aware setup, locked Voice/Text modes, adaptive conversations and measurable improvement.\n\n[Sources]\n- PrepPilot repository: current routes, server functions, transcription handler and Supabase migrations"}
+{"kind":"slide","id":"sl/25x9q9","slide":2,"title":"PREPPILOT · TEAM PHANTOM","textShapes":14}
+{"kind":"textbox","id":"sh/j2d07ypk","slide":2,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/5w3ep076","slide":2,"text":"Setup makes every interview candidate-specific","textPreview":"Setup makes every interview candidate-specific","textChars":46,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/kvudgvql","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"textbox","id":"sh/vq1cjqpo","slide":2,"text":"PrepPilot combines resume intelligence with a required, fully configurable interview setup.","textPreview":"PrepPilot combines resume intelligence with a required, fully configurable interview setup.","textChars":91,"textLines":1,"bbox":[56,172,1080,92]}
+{"kind":"shape","id":"sh/tkz6hcb2","slide":2,"bbox":[424,330,0,255]}
+{"kind":"shape","id":"sh/ytonixcf","slide":2,"bbox":[816,330,0,255]}
+{"kind":"textbox","id":"sh/wradcvq9","slide":2,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[56,330,70,34]}
+{"kind":"textbox","id":"sh/fm5wvap8","slide":2,"text":"Resume intelligence","textPreview":"Resume intelligence","textChars":19,"textLines":1,"bbox":[56,385,300,48]}
+{"kind":"textbox","id":"sh/ulwvmp8n","slide":2,"text":"PDF upload → private storage → editable profile of skills, projects, education and experience.","textPreview":"PDF upload → private storage → editable profile of skills, projects, education and experience.","textChars":94,"textLines":1,"bbox":[56,455,315,112]}
+{"kind":"textbox","id":"sh/8rm1kn6h","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[448,330,70,34]}
+{"kind":"textbox","id":"sh/tsf2d872","slide":2,"text":"Interview setup","textPreview":"Interview setup","textChars":15,"textLines":1,"bbox":[448,385,300,48]}
+{"kind":"textbox","id":"sh/6p4jidob","slide":2,"text":"Role, experience level, interview type, 5–180 minute duration, job description and review.","textPreview":"Role, experience level, interview type, 5–180 minute duration, job description and review.","textChars":90,"textLines":1,"bbox":[448,455,315,112]}
+{"kind":"textbox","id":"sh/7qdkbipw","slide":2,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[840,330,70,34]}
+{"kind":"textbox","id":"sh/k3m1g365","slide":2,"text":"Mode selection","textPreview":"Mode selection","textChars":14,"textLines":1,"bbox":[840,385,300,48]}
+{"kind":"textbox","id":"sh/l4vi987q","slide":2,"text":"Voice or Text is required, stored in session context and locked after the interview launches.","textPreview":"Voice or Text is required, stored in session context and locked after the interview launches.","textChars":93,"textLines":1,"bbox":[840,455,315,112]}
+{"kind":"textbox","id":"sh/y14jetof","slide":2,"text":"That configuration becomes context for every adaptive question.","textPreview":"That configuration becomes context for every adaptive question.","textChars":63,"textLines":1,"bbox":[56,622,820,38]}
+{"kind":"notes","id":"nt/25x9q9","slide":2,"text":"Show that PrepPilot begins before the interview room. A PDF resume is stored privately and converted into an editable candidate profile. The candidate then configures role, experience level, interview type, any duration from 5 to 180 minutes, job description and a required interview mode. The selected mode is persisted and cannot be changed mid-interview.\n\n[Sources]\n- PrepPilot repository: current routes, server functions, transcription handler and Supabase migrations"}
+{"kind":"slide","id":"sl/pmk19z","slide":3,"title":"PREPPILOT · TEAM PHANTOM","textShapes":14}
+{"kind":"textbox","id":"sh/b6x4r2tg","slide":3,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/hcvmtk7a","slide":3,"text":"Setup makes every interview candidate-specific","textPreview":"Setup makes every interview candidate-specific","textChars":46,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/gbm50fqp","slide":3,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"textbox","id":"sh/3edovupg","slide":3,"text":"PrepPilot combines resume intelligence with a required, fully configurable interview setup.","textPreview":"PrepPilot combines resume intelligence with a required, fully configurable interview setup.","textChars":91,"textLines":1,"bbox":[56,172,1080,92]}
+{"kind":"shape","id":"sh/p8zy9gjm","slide":3,"bbox":[424,330,0,255]}
+{"kind":"shape","id":"sh/a98zilk7","slide":3,"bbox":[816,330,0,255]}
+{"kind":"textbox","id":"sh/4fm54z6l","slide":3,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[56,330,70,34]}
+{"kind":"textbox","id":"sh/ji94japw","slide":3,"text":"Resume intelligence","textPreview":"Resume intelligence","textChars":19,"textLines":1,"bbox":[56,385,300,48]}
+{"kind":"textbox","id":"sh/yh0nq58b","slide":3,"text":"PDF upload → private storage → editable profile of skills, projects, education and experience.","textPreview":"PDF upload → private storage → editable profile of skills, projects, education and experience.","textChars":94,"textLines":1,"bbox":[56,455,315,112]}
+{"kind":"textbox","id":"sh/o3mlgnap","slide":3,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[448,330,70,34]}
+{"kind":"textbox","id":"sh/p4vmpsba","slide":3,"text":"Interview setup","textPreview":"Interview setup","textChars":15,"textLines":1,"bbox":[448,385,300,48]}
+{"kind":"textbox","id":"sh/2h43edsz","slide":3,"text":"Role, experience level, interview type, 5–180 minute duration, job description and review.","textPreview":"Role, experience level, interview type, 5–180 minute duration, job description and review.","textChars":90,"textLines":1,"bbox":[448,455,315,112]}
+{"kind":"textbox","id":"sh/3id4nit4","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[840,330,70,34]}
+{"kind":"textbox","id":"sh/c765k7a1","slide":3,"text":"Mode selection","textPreview":"Mode selection","textChars":14,"textLines":1,"bbox":[840,385,300,48]}
+{"kind":"textbox","id":"sh/d8fmtsbm","slide":3,"text":"Voice or Text is required, stored in session context and locked after the interview launches.","textPreview":"Voice or Text is required, stored in session context and locked after the interview launches.","textChars":93,"textLines":1,"bbox":[840,455,315,112]}
+{"kind":"textbox","id":"sh/q543ixsv","slide":3,"text":"That configuration becomes context for every adaptive question.","textPreview":"That configuration becomes context for every adaptive question.","textChars":63,"textLines":1,"bbox":[56,622,820,38]}
+{"kind":"notes","id":"nt/pmk19z","slide":3,"text":"Show that PrepPilot begins before the interview room. A PDF resume is stored privately and converted into an editable candidate profile. The candidate then configures role, experience level, interview type, any duration from 5 to 180 minutes, job description and a required interview mode. The selected mode is persisted and cannot be changed mid-interview.\n\n[Sources]\n- PrepPilot repository: current routes, server functions, transcription handler and Supabase migrations"}
+{"kind":"slide","id":"sl/kk0t78","slide":4,"title":"PREPPILOT · TEAM PHANTOM","textShapes":12}
+{"kind":"textbox","id":"sh/ytcbm1on","slide":4,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/mlcbu1wr","slide":4,"text":"Voice and Text use one adaptive interview engine","textPreview":"Voice and Text use one adaptive interview engine","textChars":48,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/7mlc36xc","slide":4,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"textbox","id":"sh/wbut0bet","slide":4,"text":"Two modes, one AI engine","textPreview":"Two modes, one AI engine","textChars":24,"textLines":1,"bbox":[56,190,420,42]}
+{"kind":"textbox","id":"sh/hc3u9gfe","slide":4,"text":"A natural interview from introduction to closing.","textPreview":"A natural interview from introduction to closing.","textChars":49,"textLines":1,"bbox":[56,250,500,145]}
+{"kind":"textbox","id":"sh/upcby1wn","slide":4,"text":"Voice speaks the introduction with TTS; Text waits for Begin Interview. The timer starts only after the introduction.","textPreview":"Voice speaks the introduction with TTS; Text waits for Begin Interview. The timer starts only after the introduction.","textChars":117,"textLines":1,"bbox":[56,430,500,120]}
+{"kind":"shape","id":"sh/c3qxk3yl","slide":4,"bbox":[650,220,0,360]}
+{"kind":"shape","id":"sh/cfatorep","slide":4,"bbox":[710,190,470,115]}
+{"kind":"textbox","id":"sh/xgjaxwfa","slide":4,"text":"VOICE MODE","textPreview":"VOICE MODE","textChars":10,"textLines":1,"bbox":[742,210,180,26]}
+{"kind":"textbox","id":"sh/xs3adw7i","slide":4,"text":"TTS intro · mic · Groq STT","textPreview":"TTS intro · mic · Groq STT","textChars":26,"textLines":1,"bbox":[742,245,400,40]}
+{"kind":"shape","id":"sh/c7utkr6x","slide":4,"bbox":[710,340,470,115]}
+{"kind":"textbox","id":"sh/b6lsbmpc","slide":4,"text":"TEXT MODE","textPreview":"TEXT MODE","textChars":9,"textLines":1,"bbox":[742,360,180,26]}
+{"kind":"textbox","id":"sh/a5sbihor","slide":4,"text":"Intro · Begin Interview · typed answers","textPreview":"Intro · Begin Interview · typed answers","textChars":39,"textLines":1,"bbox":[742,395,400,40]}
+{"kind":"shape","id":"sh/lw3ahw7e","slide":4,"bbox":[710,490,470,115]}
+{"kind":"textbox","id":"sh/kvutob6t","slide":4,"text":"SESSION RULE","textPreview":"SESSION RULE","textChars":12,"textLines":1,"bbox":[742,510,180,26]}
+{"kind":"textbox","id":"sh/zulsf6p8","slide":4,"text":"Mode locked · countdown · anti-cheat","textPreview":"Mode locked · countdown · anti-cheat","textChars":36,"textLines":1,"bbox":[742,545,400,40]}
+{"kind":"notes","id":"nt/kk0t78","slide":4,"text":"Explain the two implemented modes. Voice uses the existing browser recorder, Groq transcription and text-to-speech. Text displays the introduction and waits for Begin Interview. In both modes the AI gives a real introduction, the timer begins afterward, and the session ends with a closing message before report generation. Tab and fullscreen safeguards protect session integrity.\n\n[Sources]\n- PrepPilot repository: current routes, server functions, transcription handler and Supabase migrations"}
+{"kind":"slide","id":"sl/5h686c","slide":5,"title":"PREPPILOT · TEAM PHANTOM","textShapes":16}
+{"kind":"textbox","id":"sh/tkbe9szy","slide":5,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/9wv2t0vy","slide":5,"text":"Every answer changes questions and feedback","textPreview":"Every answer changes questions and feedback","textChars":43,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/8vm1kved","slide":5,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"shape","id":"sh/wfu9oj6d","slide":5,"bbox":[640,190,0,390]}
+{"kind":"shape","id":"sh/xg3ax47y","slide":5,"bbox":[56,385,1168,0]}
+{"kind":"textbox","id":"sh/lsv2p0f2","slide":5,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[56,190,60,28]}
+{"kind":"textbox","id":"sh/0rm1gveh","slide":5,"text":"Conversational turn","textPreview":"Conversational turn","textChars":19,"textLines":1,"bbox":[56,235,470,40]}
+{"kind":"textbox","id":"sh/r2t0j6xk","slide":5,"text":"AI returns acknowledgement + transition + nextQuestion while avoiding repetition, fake praise and score disclosure.","textPreview":"AI returns acknowledgement + transition + nextQuestion while avoiding repetition, fake praise and score disclosure.","textChars":115,"textLines":1,"bbox":[56,290,500,90]}
+{"kind":"textbox","id":"sh/q1kjalwz","slide":5,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[686,190,60,28]}
+{"kind":"textbox","id":"sh/wrid83yl","slide":5,"text":"Time-aware orchestration","textPreview":"Time-aware orchestration","textChars":24,"textLines":1,"bbox":[686,235,470,40]}
+{"kind":"textbox","id":"sh/xsru18z6","slide":5,"text":"Remaining time and answer depth control follow-ups, topic balance and final-question transitions.","textPreview":"Remaining time and answer depth control follow-ups, topic balance and final-question transitions.","textChars":97,"textLines":1,"bbox":[686,290,500,90]}
+{"kind":"textbox","id":"sh/apgv6tgf","slide":5,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[56,425,60,28]}
+{"kind":"textbox","id":"sh/bqpczyh0","slide":5,"text":"Five-dimension evaluation","textPreview":"Five-dimension evaluation","textChars":25,"textLines":1,"bbox":[56,470,470,40]}
+{"kind":"textbox","id":"sh/onyd43y9","slide":5,"text":"Technical Accuracy, Clarity, Relevance, Problem Solving and Communication score every answer.","textPreview":"Technical Accuracy, Clarity, Relevance, Problem Solving and Communication score every answer.","textChars":93,"textLines":1,"bbox":[56,525,500,90]}
+{"kind":"textbox","id":"sh/9o7ux8zu","slide":5,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[686,425,60,28]}
+{"kind":"textbox","id":"sh/mlgv2tgj","slide":5,"text":"Report → roadmap","textPreview":"Report → roadmap","textChars":16,"textLines":1,"bbox":[686,470,470,40]}
+{"kind":"textbox","id":"sh/nmpcvyho","slide":5,"text":"Readiness gauge, radar, per-question review, strengths, gaps, priority focus, quick wins and practice prompts.","textPreview":"Readiness gauge, radar, per-question review, strengths, gaps, priority focus, quick wins and practice prompts.","textChars":110,"textLines":1,"bbox":[686,525,500,90]}
+{"kind":"textbox","id":"sh/8j2dgnyt","slide":5,"text":"Readiness = mean answer score × 10; dashboard and history show real scored sessions only.","textPreview":"Readiness = mean answer score × 10; dashboard and history show real scored sessions only.","textChars":89,"textLines":1,"bbox":[56,625,1030,38]}
+{"kind":"notes","id":"nt/5h686c","slide":5,"text":"Explain how the adaptive loop works. The model receives the previous answer, resume, interview type, history and remaining seconds. It changes behavior at the beginning, middle, final five minutes and final minute. Short answers invite deeper follow-ups; detailed answers move the interview onward. Each answer is scored on Technical Accuracy, Clarity, Relevance, Problem Solving and Communication. The report then drives priority areas, quick wins, ordered study steps and practice prompts.\n\n[Sources]\n- PrepPilot repository: current routes, server functions, transcription handler and Supabase migrations"}
+{"kind":"slide","id":"sl/5juayo","slide":6,"title":"PREPPILOT · TEAM PHANTOM","textShapes":16}
+{"kind":"textbox","id":"sh/czip4fa9","slide":6,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/mp8bqp47","slide":6,"text":"Every answer changes questions and feedback","textPreview":"Every answer changes questions and feedback","textChars":43,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/7qhszuls","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"shape","id":"sh/58vad4jq","slide":6,"bbox":[640,190,0,390]}
+{"kind":"shape","id":"sh/47m9kz25","slide":6,"bbox":[56,385,1168,0]}
+{"kind":"textbox","id":"sh/ylobm54b","slide":6,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[56,190,60,28]}
+{"kind":"textbox","id":"sh/zmxsvalg","slide":6,"text":"Conversational turn","textPreview":"Conversational turn","textChars":19,"textLines":1,"bbox":[56,235,470,40]}
+{"kind":"textbox","id":"sh/4jat0jml","slide":6,"text":"AI returns acknowledgement + transition + nextQuestion while avoiding repetition, fake praise and score disclosure.","textPreview":"AI returns acknowledgement + transition + nextQuestion while avoiding repetition, fake praise and score disclosure.","textChars":115,"textLines":1,"bbox":[56,290,500,90]}
+{"kind":"textbox","id":"sh/5kju943q","slide":6,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[686,190,60,28]}
+{"kind":"textbox","id":"sh/hs7650rm","slide":6,"text":"Time-aware orchestration","textPreview":"Time-aware orchestration","textChars":24,"textLines":1,"bbox":[686,235,470,40]}
+{"kind":"textbox","id":"sh/grypwva1","slide":6,"text":"Remaining time and answer depth control follow-ups, topic balance and final-question transitions.","textPreview":"Remaining time and answer depth control follow-ups, topic balance and final-question transitions.","textChars":97,"textLines":1,"bbox":[686,290,500,90]}
+{"kind":"textbox","id":"sh/vq5o3a9g","slide":6,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[56,425,60,28]}
+{"kind":"textbox","id":"sh/u5wnu5sv","slide":6,"text":"Five-dimension evaluation","textPreview":"Five-dimension evaluation","textChars":25,"textLines":1,"bbox":[56,470,470,40]}
+{"kind":"textbox","id":"sh/t4n610ra","slide":6,"text":"Technical Accuracy, Clarity, Relevance, Problem Solving and Communication score every answer.","textPreview":"Technical Accuracy, Clarity, Relevance, Problem Solving and Communication score every answer.","textChars":93,"textLines":1,"bbox":[56,525,500,90]}
+{"kind":"textbox","id":"sh/83e5svap","slide":6,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[686,425,60,28]}
+{"kind":"textbox","id":"sh/725ozq9k","slide":6,"text":"Report → roadmap","textPreview":"Report → roadmap","textChars":16,"textLines":1,"bbox":[686,470,470,40]}
+{"kind":"textbox","id":"sh/61wnqlsz","slide":6,"text":"Readiness gauge, radar, per-question review, strengths, gaps, priority focus, quick wins and practice prompts.","textPreview":"Readiness gauge, radar, per-question review, strengths, gaps, priority focus, quick wins and practice prompts.","textChars":110,"textLines":1,"bbox":[686,525,500,90]}
+{"kind":"textbox","id":"sh/d0r6dkru","slide":6,"text":"Readiness = mean answer score × 10; dashboard and history show real scored sessions only.","textPreview":"Readiness = mean answer score × 10; dashboard and history show real scored sessions only.","textChars":89,"textLines":1,"bbox":[56,625,1030,38]}
+{"kind":"notes","id":"nt/5juayo","slide":6,"text":"Explain how the adaptive loop works. The model receives the previous answer, resume, interview type, history and remaining seconds. It changes behavior at the beginning, middle, final five minutes and final minute. Short answers invite deeper follow-ups; detailed answers move the interview onward. Each answer is scored on Technical Accuracy, Clarity, Relevance, Problem Solving and Communication. The report then drives priority areas, quick wins, ordered study steps and practice prompts.\n\n[Sources]\n- PrepPilot repository: current routes, server functions, transcription handler and Supabase migrations"}
+{"kind":"slide","id":"sl/kwerr7","slide":7,"title":"PREPPILOT · TEAM PHANTOM","textShapes":16}
+{"kind":"textbox","id":"sh/7e94f6h8","slide":7,"text":"PREPPILOT · TEAM PHANTOM","textPreview":"PREPPILOT · TEAM PHANTOM","textChars":24,"textLines":1,"bbox":[56,35,420,30]}
+{"kind":"textbox","id":"sh/fqd472l0","slide":7,"text":"Context and API keys stay server-side","textPreview":"Context and API keys stay server-side","textChars":37,"textLines":1,"bbox":[56,76,1120,72]}
+{"kind":"textbox","id":"sh/up4nex4f","slide":7,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1172,40,52,28]}
+{"kind":"textbox","id":"sh/pwf6dc32","slide":7,"text":"TanStack Start server functions connect the interview UI, AI providers and Supabase data layer.","textPreview":"TanStack Start server functions connect the interview UI, AI providers and Supabase data layer.","textChars":95,"textLines":1,"bbox":[56,150,1000,42]}
+{"kind":"shape","id":"sh/jixsbyx0","slide":7,"bbox":[306,340,70,0]}
+{"kind":"shape","id":"sh/ihobitgf","slide":7,"bbox":[604,340,70,0]}
+{"kind":"shape","id":"sh/xgfa9ofu","slide":7,"bbox":[902,340,70,0]}
+{"kind":"shape","id":"sh/dkz6hc3e","slide":7,"bbox":[78,250,230,185]}
+{"kind":"textbox","id":"sh/czq5o72t","slide":7,"text":"CLIENT UI","textPreview":"CLIENT UI","textChars":9,"textLines":1,"bbox":[100,276,186,40]}
+{"kind":"textbox","id":"sh/25o7qpkf","slide":7,"text":"React · TanStack Start\nVoice recorder · TTS","textPreview":"React · TanStack Start | Voice recorder · TTS","textChars":43,"textLines":2,"bbox":[98,333,190,78]}
+{"kind":"shape","id":"sh/n6hoju1k","slide":7,"bbox":[376,250,230,185]}
+{"kind":"textbox","id":"sh/o7qpsz25","slide":7,"text":"SERVER FUNCTIONS","textPreview":"SERVER FUNCTIONS","textChars":16,"textLines":1,"bbox":[398,276,186,40]}
+{"kind":"textbox","id":"sh/p8zql4jq","slide":7,"text":"create · begin · submit · end\nCSRF-protected RPC","textPreview":"create · begin · submit · end | CSRF-protected RPC","textChars":48,"textLines":2,"bbox":[396,333,190,78]}
+{"kind":"shape","id":"sh/a987u9kb","slide":7,"bbox":[674,250,230,185]}
+{"kind":"textbox","id":"sh/bah8ne1w","slide":7,"text":"AI PROVIDERS","textPreview":"AI PROVIDERS","textChars":12,"textLines":1,"bbox":[696,276,186,40]}
+{"kind":"textbox","id":"sh/wbqpwz2h","slide":7,"text":"Groq LLM + Whisper STT\nOpenRouter fallback","textPreview":"Groq LLM + Whisper STT | OpenRouter fallback","textChars":42,"textLines":2,"bbox":[694,333,190,78]}
+{"kind":"shape","id":"sh/xczqp4j2","slide":7,"bbox":[972,250,230,185]}
+{"kind":"textbox","id":"sh/qd47i5k7","slide":7,"text":"SUPABASE","textPreview":"SUPABASE","textChars":8,"textLines":1,"bbox":[994,276,186,40]}
+{"kind":"textbox","id":"sh/redoba1c","slide":7,"text":"Auth · Postgres · private resumes\nRLS per user","textPreview":"Auth · Postgres · private resumes | RLS per user","textChars":46,"textLines":2,"bbox":[992,333,190,78]}
+{"kind":"textbox","id":"sh/vit4j6h4","slide":7,"text":"Mode stored in interview context","textPreview":"Mode stored in interview context","textChars":32,"textLines":1,"bbox":[80,545,250,32]}
+{"kind":"textbox","id":"sh/uhk3q10z","slide":7,"text":"Evaluations persisted per answer","textPreview":"Evaluations persisted per answer","textChars":32,"textLines":1,"bbox":[384,545,350,32]}
+{"kind":"textbox","id":"sh/hkbmlgza","slide":7,"text":"Reports + roadmaps persisted","textPreview":"Reports + roadmaps persisted","textChars":28,"textLines":1,"bbox":[806,545,380,32]}
+{"kind":"textbox","id":"sh/gj2lsbip","slide":7,"text":"Email confirmation, auth-gated routes, private storage and server-only secrets protect candidate data.","textPreview":"Email confirmation, auth-gated routes, private storage and server-only secrets protect candidate data.","textChars":102,"textLines":1,"bbox":[80,618,1030,34]}
+{"kind":"notes","id":"nt/kwerr7","slide":7,"text":"Describe the implementation. The UI is React on TanStack Start. Typed server functions create, begin, submit and end interviews, protected by CSRF middleware. Groq handles the primary LLM and Whisper transcription, with OpenRouter as a text-generation fallback. Supabase provides authentication, Postgres and private resume storage with row-level security. Mode is stored inside the interview context, while evaluations, reports and roadmaps are persisted separately.\n\n[Sources]\n- PrepPilot repository: current routes, server functions, transcription handler and Supabase migrations"}
