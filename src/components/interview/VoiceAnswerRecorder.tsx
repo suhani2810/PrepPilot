@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, Mic, Volume2, VolumeX } from "lucide-react";
 import { useVoiceRecorder } from "./useVoiceRecorder";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 export type VoiceFlowState =
   | "ready"
