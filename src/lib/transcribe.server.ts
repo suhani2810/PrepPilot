@@ -139,6 +139,9 @@ export async function handleTranscribeRequest(request: Request): Promise<Respons
     return jsonError("Method not allowed. Use POST.", 405);
   }
 
+  const auth = await verifyAuth(request);
+  if (auth instanceof Response) return auth;
+
   const contentType = request.headers.get("content-type") ?? "";
   if (!contentType.toLowerCase().includes("multipart/form-data")) {
     return jsonError("Invalid Content-Type. Expected multipart/form-data.", 415);
