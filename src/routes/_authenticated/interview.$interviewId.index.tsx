@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
-  StopCircle, Send, Loader2, Clock, Maximize2, ShieldAlert, Mic, Radio, Volume2, KeyboardIcon, User,
+  StopCircle, Send, Loader2, Clock, Maximize2, ShieldAlert, Mic, Volume2, KeyboardIcon, User,
 } from "lucide-react";
 import { toast } from "sonner";
 import { PrepPilotMark } from "@/components/PrepPilotLogo";
+import { VoiceAnswerRecorder } from "@/components/interview/VoiceAnswerRecorder";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/interview/$interviewId/")({
@@ -46,7 +47,9 @@ function InterviewRoom() {
   const [expired, setExpired] = useState(false);
   const [showAntiCheatWarning, setShowAntiCheatWarning] = useState(false);
   const [mode, setMode] = useState<"text" | "voice">("text");
-  const [voiceListening, setVoiceListening] = useState(false); // UI-only placeholder for future voice module
+  const [voiceRecordingDisabled, setVoiceRecordingDisabled] = useState(false);
+  const [voiceRecordingFile, setVoiceRecordingFile] = useState<File | null>(null);
+  const [voiceRecordingDuration, setVoiceRecordingDuration] = useState<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const finishedRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -261,19 +264,31 @@ function InterviewRoom() {
               <button
                 type="button"
                 onClick={() => setMode("text")}
-                className={cn("inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition", mode === "text" ? "bg-background shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground")}
+                disabled={voiceRecordingDisabled}
+                className={cn(
+                  "inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition",
+                  mode === "text"
+                    ? "bg-background shadow-soft text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
               >
                 <KeyboardIcon className="h-3.5 w-3.5" /> Text
               </button>
               <button
                 type="button"
-                onClick={() => { setMode("voice"); toast.info("Voice mode is coming soon."); }}
-                className={cn("inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition", mode === "voice" ? "bg-background shadow-soft text-foreground" : "text-muted-foreground hover:text-foreground")}
+                onClick={() => setMode("voice")}
+                disabled={voiceRecordingDisabled}
+                className={cn(
+                  "inline-flex items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition",
+                  mode === "voice"
+                    ? "bg-background shadow-soft text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
               >
                 <Mic className="h-3.5 w-3.5" /> Voice
               </button>
             </div>
-            <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">Voice interview module lands soon. Your session remains fully in text.</p>
+            <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">Use voice mode to record one spoken answer and preview it before using it in your session.</p>
           </div>
 
           <div className="rounded-xl border border-border/70 bg-card/40 p-3 text-[11px] text-muted-foreground">
@@ -312,22 +327,15 @@ function InterviewRoom() {
           {/* Composer */}
           <div className="border-t border-border/70 p-4">
             {mode === "voice" ? (
-              <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/70 bg-secondary/30 p-6 text-center">
-                <button
-                  type="button"
-                  disabled
-                  onClick={() => setVoiceListening((v) => !v)}
-                  className={cn(
-                    "relative grid h-14 w-14 place-items-center rounded-full border transition",
-                    voiceListening ? "border-destructive/40 bg-destructive/10 text-destructive" : "border-border/70 bg-card text-muted-foreground",
-                  )}
-                  aria-label="Voice mode (coming soon)"
-                >
-                  {voiceListening ? <Radio className="h-5 w-5 animate-pulse" /> : <Mic className="h-5 w-5" />}
-                </button>
-                <p className="text-xs text-muted-foreground">Voice interview module coming soon. Switch back to text to answer.</p>
-                <Button variant="outline" size="sm" onClick={() => setMode("text")}>Use text mode</Button>
-              </div>
+              <VoiceAnswerRecorder
+                disabled={voiceRecordingDisabled}
+                onRecordingStateChange={(isRecording) => setVoiceRecordingDisabled(isRecording)}
+                onRecordingReady={(file, durationSeconds) => {
+                  setVoiceRecordingFile(file);
+                  setVoiceRecordingDuration(durationSeconds);
+                  console.log("Voice recording ready");
+                }}
+              />
             ) : (
               <div className="flex flex-col gap-2">
                 <div className="flex items-end gap-2">
