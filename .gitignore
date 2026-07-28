@@ -19,6 +19,7 @@ dist-ssr
 # Local presentation artifacts
 *.ppt
 *.pptx
+PrepPilot_Team_Phantom*
 
 # Environment files — never commit real secrets. Only .env.example is tracked.
 .env
