@@ -16,6 +16,10 @@ dist-ssr
 .nitro
 *.local
 
+# Local presentation artifacts
+*.ppt
+*.pptx
+
 # Environment files — never commit real secrets. Only .env.example is tracked.
 .env
 .env.local
