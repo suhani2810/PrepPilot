@@ -83,14 +83,20 @@ async function generateJson<T>(opts: {
 
 type RateLimitAction = "parse_resume" | "start_interview" | "submit_answer" | "roadmap";
 
-async function enforceRateLimit(supabase: unknown, action: RateLimitAction) {
-  const rateLimitClient = supabase as {
+async function enforceRateLimit(userId: string, action: RateLimitAction) {
+  // Rate limiting is enforced server-side only: the RPC is executable by the
+  // service role, never by signed-in users.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const rateLimitClient = supabaseAdmin as unknown as {
     rpc: (
       name: string,
       args: Record<string, unknown>,
     ) => PromiseLike<{ data: unknown; error: unknown }>;
   };
-  const { data, error } = await rateLimitClient.rpc("consume_rate_limit", { p_action: action });
+  const { data, error } = await rateLimitClient.rpc("consume_rate_limit", {
+    p_action: action,
+    p_user_id: userId,
+  });
   if (error) {
     console.error(`[security] ${action} rate-limit check failed`, error);
     throw new Error("Security controls are unavailable. Please retry shortly.");
