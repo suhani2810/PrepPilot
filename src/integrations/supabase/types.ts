@@ -310,7 +310,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      consume_rate_limit: { Args: { p_action: string }; Returns: boolean }
+      consume_rate_limit: {
+        Args: { p_action: string; p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
