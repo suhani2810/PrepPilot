@@ -18,7 +18,9 @@ import {
   ArrowRight,
   Target,
   MessageSquareQuote,
+  AudioLines,
 } from "lucide-react";
+import { analyzeFillerWords, type FillerWordAnalysis } from "@/lib/filler-words";
 import {
   DimensionBar,
   EmptyState,
@@ -54,6 +56,7 @@ type Interview = {
     readiness: number;
     strengths: string[];
     weaknesses: string[];
+    fillerWords?: FillerWordAnalysis;
   } | null;
 };
 type Msg = {
@@ -146,6 +149,11 @@ function Report() {
     }
   }
   const answered = pairs.filter((p) => p.a).length;
+  const fillerWords =
+    r?.fillerWords ??
+    analyzeFillerWords(
+      messages.filter((message) => message.role === "user").map((message) => message.content),
+    );
 
   if (answered === 0) {
     return (
@@ -345,6 +353,53 @@ function Report() {
           </Link>
         </Surface>
       </div>
+
+      {/* Speaking habits */}
+      <Surface className="mt-4 p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h3 className="flex items-center gap-2 text-sm font-medium">
+              <AudioLines className="h-4 w-4 text-primary" /> Filler-word usage
+            </h3>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+              Common speech fillers detected across your submitted answers. This is coaching
+              feedback only and does not change your interview score.
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Stat label="Total fillers" value={fillerWords.total} />
+            <Stat
+              label="Per 100 words"
+              value={fillerWords.ratePer100Words.toFixed(1)}
+              hint={`${fillerWords.wordCount} words analyzed`}
+            />
+          </div>
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-[1fr_auto] md:items-start">
+          <div className="rounded-lg border border-border/60 bg-secondary/30 p-4">
+            <p className="text-sm leading-relaxed">{fillerWords.feedback}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Detected in {fillerWords.answersWithFillers} of {fillerWords.answerCount} answers.
+            </p>
+          </div>
+          <div className="flex max-w-md flex-wrap gap-2 md:justify-end">
+            {fillerWords.breakdown.length ? (
+              fillerWords.breakdown.map(({ phrase, count }) => (
+                <Badge key={phrase} variant="outline" className="bg-secondary/30">
+                  {phrase} · {count}
+                </Badge>
+              ))
+            ) : (
+              <Badge
+                variant="outline"
+                className="border-[color:var(--success)]/40 text-[color:var(--success)]"
+              >
+                No fillers detected
+              </Badge>
+            )}
+          </div>
+        </div>
+      </Surface>
 
       {/* Q by Q */}
       <div className="mt-10">

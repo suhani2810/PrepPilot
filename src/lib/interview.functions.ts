@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { generateText, NoObjectGeneratedError } from "ai";
 import { z } from "zod";
+import { analyzeFillerWords } from "@/lib/filler-words";
 import { getAIModels } from "./ai.server";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -746,6 +747,9 @@ export const endInterview = createServerFn({ method: "POST" })
     const weaknesses = Array.from(
       new Set(evalsList.flatMap((e) => (e.weaknesses as string[]) ?? [])),
     ).slice(0, 8);
+    const fillerWords = analyzeFillerWords(
+      (msgs ?? []).filter((message) => message.role === "user").map((message) => message.content),
+    );
 
     const report = {
       dimensions,
@@ -753,6 +757,7 @@ export const endInterview = createServerFn({ method: "POST" })
       readiness,
       strengths,
       weaknesses,
+      fillerWords,
       messageCount: msgs?.length ?? 0,
     };
 
