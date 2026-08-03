@@ -83,14 +83,20 @@ async function generateJson<T>(opts: {
 
 type RateLimitAction = "parse_resume" | "start_interview" | "submit_answer" | "roadmap";
 
-async function enforceRateLimit(supabase: unknown, action: RateLimitAction) {
-  const rateLimitClient = supabase as {
+async function enforceRateLimit(userId: string, action: RateLimitAction) {
+  // Rate limiting is enforced server-side only: the RPC is executable by the
+  // service role, never by signed-in users.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const rateLimitClient = supabaseAdmin as unknown as {
     rpc: (
       name: string,
       args: Record<string, unknown>,
     ) => PromiseLike<{ data: unknown; error: unknown }>;
   };
-  const { data, error } = await rateLimitClient.rpc("consume_rate_limit", { p_action: action });
+  const { data, error } = await rateLimitClient.rpc("consume_rate_limit", {
+    p_action: action,
+    p_user_id: userId,
+  });
   if (error) {
     console.error(`[security] ${action} rate-limit check failed`, error);
     throw new Error("Security controls are unavailable. Please retry shortly.");
@@ -150,7 +156,7 @@ export const parseResume = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await enforceRateLimit(supabase, "parse_resume");
+    await enforceRateLimit(userId, "parse_resume");
     if (!data.resumePath.startsWith(`${userId}/`)) throw new Error("Invalid resume path");
     const { data: file, error: dlErr } = await supabase.storage
       .from("resumes")
@@ -284,7 +290,7 @@ export const startInterview = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await enforceRateLimit(supabase, "start_interview");
+    await enforceRateLimit(userId, "start_interview");
     const db = await getTrustedDb();
     const [{ data: cp }, { data: profile }] = await Promise.all([
       db.from("candidate_profiles").select("id").eq("user_id", userId).maybeSingle(),
@@ -426,7 +432,7 @@ export const submitAnswer = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await enforceRateLimit(supabase, "submit_answer");
+    await enforceRateLimit(userId, "submit_answer");
     const db = await getTrustedDb();
 
     const { data: interview, error: iErr } = await db
@@ -876,7 +882,7 @@ export const getOrGenerateRoadmap = createServerFn({ method: "POST" })
       return { roadmap: existing.content as unknown as Roadmap, cached: true };
     }
 
-    await enforceRateLimit(supabase, "roadmap");
+    await enforceRateLimit(userId, "roadmap");
 
     const { data: evals } = await db
       .from("evaluations")
