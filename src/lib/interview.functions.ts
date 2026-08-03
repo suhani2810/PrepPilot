@@ -156,7 +156,7 @@ export const parseResume = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await enforceRateLimit(supabase, "parse_resume");
+    await enforceRateLimit(userId, "parse_resume");
     if (!data.resumePath.startsWith(`${userId}/`)) throw new Error("Invalid resume path");
     const { data: file, error: dlErr } = await supabase.storage
       .from("resumes")
@@ -290,7 +290,7 @@ export const startInterview = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await enforceRateLimit(supabase, "start_interview");
+    await enforceRateLimit(userId, "start_interview");
     const db = await getTrustedDb();
     const [{ data: cp }, { data: profile }] = await Promise.all([
       db.from("candidate_profiles").select("id").eq("user_id", userId).maybeSingle(),
@@ -432,7 +432,7 @@ export const submitAnswer = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    await enforceRateLimit(supabase, "submit_answer");
+    await enforceRateLimit(userId, "submit_answer");
     const db = await getTrustedDb();
 
     const { data: interview, error: iErr } = await db
@@ -882,7 +882,7 @@ export const getOrGenerateRoadmap = createServerFn({ method: "POST" })
       return { roadmap: existing.content as unknown as Roadmap, cached: true };
     }
 
-    await enforceRateLimit(supabase, "roadmap");
+    await enforceRateLimit(userId, "roadmap");
 
     const { data: evals } = await db
       .from("evaluations")
