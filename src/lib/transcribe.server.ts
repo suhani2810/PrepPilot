@@ -150,7 +150,8 @@ export async function handleTranscribeRequest(request: Request): Promise<Respons
 
   const auth = await verifyAuth(request);
   if (auth instanceof Response) return auth;
-  const rateLimitClient = auth.supabase as unknown as {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const rateLimitClient = supabaseAdmin as unknown as {
     rpc: (
       name: string,
       args: Record<string, unknown>,
@@ -158,6 +159,7 @@ export async function handleTranscribeRequest(request: Request): Promise<Respons
   };
   const { data: allowed, error: rateLimitError } = await rateLimitClient.rpc("consume_rate_limit", {
     p_action: "transcribe",
+    p_user_id: auth.userId,
   });
   if (rateLimitError) {
     console.error("[security] transcription rate-limit check failed", rateLimitError);
