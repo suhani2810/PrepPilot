@@ -22,12 +22,18 @@ type ProviderConfig = {
   defaultModel: string;
 };
 
+const DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b";
+
+const RETIRED_GROQ_MODELS: Record<string, string> = {
+  "llama-3.3-70b-versatile": DEFAULT_GROQ_MODEL,
+};
+
 const PROVIDERS: Record<ProviderName, ProviderConfig> = {
   groq: {
     baseURL: "https://api.groq.com/openai/v1",
     envKey: "GROQ_API_KEY",
     modelEnvKey: "GROQ_MODEL",
-    defaultModel: "llama-3.3-70b-versatile",
+    defaultModel: DEFAULT_GROQ_MODEL,
   },
   openrouter: {
     baseURL: "https://openrouter.ai/api/v1",
@@ -46,7 +52,14 @@ function buildModel(name: ProviderName): LanguageModel | null {
     baseURL: cfg.baseURL,
     headers: { Authorization: `Bearer ${key}` },
   });
-  const modelId = process.env[cfg.modelEnvKey] || cfg.defaultModel;
+  const configuredModel = process.env[cfg.modelEnvKey]?.trim() || cfg.defaultModel;
+  const modelId =
+    name === "groq" ? (RETIRED_GROQ_MODELS[configuredModel] ?? configuredModel) : configuredModel;
+  if (modelId !== configuredModel) {
+    console.warn(
+      `[ai] ${configuredModel} has been retired by Groq; using ${modelId} instead. Update ${cfg.modelEnvKey}.`,
+    );
+  }
   return provider(modelId);
 }
 

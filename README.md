@@ -102,7 +102,7 @@ Copy `.env.example` to `.env` and fill in:
 | `SUPABASE_SERVICE_ROLE_KEY`     | server           | yes      | Trusted interview writes; never expose to the browser  |
 | `GROQ_API_KEY`                  | server           | yes\*    | Primary LLM provider; required for voice transcription |
 | `OPENROUTER_API_KEY`            | server           | yes\*    | Fallback LLM provider                                  |
-| `GROQ_MODEL`                    | server           | no       | Override default Groq model                            |
+| `GROQ_MODEL`                    | server           | no       | Override default Groq model (`openai/gpt-oss-120b`)    |
 | `GROQ_TRANSCRIPTION_MODEL`      | server           | no       | Override the Groq voice transcription model            |
 | `OPENROUTER_MODEL`              | server           | no       | Override default OpenRouter model                      |
 | `AI_PROVIDER`                   | server           | no       | `groq` (default) or `openrouter`                       |
