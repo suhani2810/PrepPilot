@@ -7,6 +7,11 @@ each answer. After the session, PrepPilot returns a per-dimension score
 breakdown, an overall readiness percentage, and a personalized learning
 roadmap targeted at the candidate's weakest areas.
 
+The preparation studio also turns private study PDFs and job descriptions into
+grounded summaries, page-cited concept maps, technical practice, and a combined
+readiness estimate. A reviewed DSA problem library is included; candidate code
+is sent only to an explicitly configured isolated runner.
+
 **Tagline:** From Resume to Ready.
 
 ## Feature overview
@@ -25,6 +30,12 @@ roadmap targeted at the candidate's weakest areas.
 - Dashboard + history with trend analytics
 - Anti-cheat safeguards in the interview room (tab-blur detection, optional
   fullscreen enforcement, session countdown)
+- Private study-material PDF upload with duplicate detection
+- Page-aware summaries, concepts, citations, and technical questions
+- Job-description skill extraction and role preparation plans
+- Technical-answer evaluation with stored weak areas
+- Reviewed DSA coding problem library and secure-runner adapter
+- Feedback capture, pilot usage events, and combined readiness
 
 See [`FEATURE_STATUS.md`](./FEATURE_STATUS.md) for the truthful shipped-vs-not
 matrix.
@@ -91,21 +102,23 @@ The dev server listens on the port Vite picks (default `5173`).
 
 Copy `.env.example` to `.env` and fill in:
 
-| Variable                        | Where            | Required | Purpose                                                |
-| ------------------------------- | ---------------- | -------- | ------------------------------------------------------ |
-| `VITE_SUPABASE_URL`             | browser + server | yes      | Supabase project URL for the browser client            |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | browser + server | yes      | Supabase anon/publishable key for the browser client   |
-| `VITE_SUPABASE_PROJECT_ID`      | browser          | yes      | Supabase project ref                                   |
-| `SUPABASE_URL`                  | server           | yes      | Same URL, used by SSR + server functions               |
-| `SUPABASE_PUBLISHABLE_KEY`      | server           | yes      | Same anon key, used by SSR + server functions          |
-| `SUPABASE_PROJECT_ID`           | server           | yes      | Same project ref                                       |
-| `SUPABASE_SERVICE_ROLE_KEY`     | server           | yes      | Trusted interview writes; never expose to the browser  |
-| `GROQ_API_KEY`                  | server           | yes\*    | Primary LLM provider; required for voice transcription |
-| `OPENROUTER_API_KEY`            | server           | yes\*    | Fallback LLM provider                                  |
-| `GROQ_MODEL`                    | server           | no       | Override default Groq model (`openai/gpt-oss-120b`)    |
-| `GROQ_TRANSCRIPTION_MODEL`      | server           | no       | Override the Groq voice transcription model            |
-| `OPENROUTER_MODEL`              | server           | no       | Override default OpenRouter model                      |
-| `AI_PROVIDER`                   | server           | no       | `groq` (default) or `openrouter`                       |
+| Variable                        | Where            | Required | Purpose                                                 |
+| ------------------------------- | ---------------- | -------- | ------------------------------------------------------- |
+| `VITE_SUPABASE_URL`             | browser + server | yes      | Supabase project URL for the browser client             |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | browser + server | yes      | Supabase anon/publishable key for the browser client    |
+| `VITE_SUPABASE_PROJECT_ID`      | browser          | yes      | Supabase project ref                                    |
+| `SUPABASE_URL`                  | server           | yes      | Same URL, used by SSR + server functions                |
+| `SUPABASE_PUBLISHABLE_KEY`      | server           | yes      | Same anon key, used by SSR + server functions           |
+| `SUPABASE_PROJECT_ID`           | server           | yes      | Same project ref                                        |
+| `SUPABASE_SERVICE_ROLE_KEY`     | server           | yes      | Trusted interview writes; never expose to the browser   |
+| `GROQ_API_KEY`                  | server           | yes\*    | Primary LLM provider; required for voice transcription  |
+| `OPENROUTER_API_KEY`            | server           | yes\*    | Fallback LLM provider                                   |
+| `GROQ_MODEL`                    | server           | no       | Override default Groq model (`openai/gpt-oss-120b`)     |
+| `GROQ_TRANSCRIPTION_MODEL`      | server           | no       | Override the Groq voice transcription model             |
+| `OPENROUTER_MODEL`              | server           | no       | Override default OpenRouter model                       |
+| `AI_PROVIDER`                   | server           | no       | `groq` (default) or `openrouter`                        |
+| `CODE_RUNNER_URL`               | server           | coding   | HTTPS endpoint for isolated, network-disabled execution |
+| `CODE_RUNNER_API_KEY`           | server           | coding   | Bearer credential for the isolated runner               |
 
 \* At least one AI provider key is required. Voice Interview always requires
 `GROQ_API_KEY`; the OpenRouter fallback only covers text generation.
@@ -143,6 +156,10 @@ After migrations, verify in the Supabase dashboard:
   `interview_messages`, `evaluations`, `learning_roadmaps` — each with RLS
   enabled.
 - **Storage:** private `resumes` bucket with owner-scoped policies.
+- **Preparation:** `documents`, `document_concepts`, `technical_questions`,
+  `practice_sessions`, `practice_attempts`, `job_descriptions`,
+  `coding_problems`, `coding_submissions`, `feedback`, and `usage_events`.
+- **Storage:** private `study-materials` bucket with owner-scoped policies.
 - **Functions:** `tg_set_updated_at`, `handle_new_user`.
 - **Trigger:** `on_auth_user_created` on `auth.users`.
 
@@ -159,6 +176,17 @@ npm run build      # production build (Vite + Nitro)
 npm run preview    # preview the production build
 npm run lint       # eslint
 ```
+
+## Isolated code-runner contract
+
+`POST CODE_RUNNER_URL` receives a bearer token and JSON containing `problem`,
+`language`, `sourceCode`, `tests`, and limits for time, memory, network, and
+filesystem access. It must execute each submission in a disposable sandbox and
+return JSON with `status`, `passedTests`, `totalTests`, `runtimeMs`, `memoryKb`,
+`stdout`, `stderr`, and optional per-test `results`. Supported statuses are
+`accepted`, `wrong_answer`, `compile_error`, `runtime_error`, and `timeout`.
+PrepPilot rejects non-HTTPS remote runner URLs and never falls back to executing
+untrusted code in the application process.
 
 ## Deployment
 

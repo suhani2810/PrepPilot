@@ -9,34 +9,35 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedResumeRouteImport } from './routes/_authenticated/resume'
-import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
+import { Route as AuthenticatedPrepareRouteImport } from './routes/_authenticated/prepare'
+import { Route as AuthenticatedResumeRouteImport } from './routes/_authenticated/resume'
 import { Route as AuthenticatedInterviewNewRouteImport } from './routes/_authenticated/interview.new'
 import { Route as AuthenticatedInterviewInterviewIdIndexRouteImport } from './routes/_authenticated/interview.$interviewId.index'
-import { Route as AuthenticatedInterviewInterviewIdRoadmapRouteImport } from './routes/_authenticated/interview.$interviewId.roadmap'
 import { Route as AuthenticatedInterviewInterviewIdReportRouteImport } from './routes/_authenticated/interview.$interviewId.report'
+import { Route as AuthenticatedInterviewInterviewIdRoadmapRouteImport } from './routes/_authenticated/interview.$interviewId.roadmap'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedResumeRoute = AuthenticatedResumeRouteImport.update({
-  id: '/resume',
-  path: '/resume',
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
@@ -44,9 +45,14 @@ const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthenticatedPrepareRoute = AuthenticatedPrepareRouteImport.update({
+  id: '/prepare',
+  path: '/prepare',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedResumeRoute = AuthenticatedResumeRouteImport.update({
+  id: '/resume',
+  path: '/resume',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedInterviewNewRoute =
@@ -61,16 +67,16 @@ const AuthenticatedInterviewInterviewIdIndexRoute =
     path: '/interview/$interviewId/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedInterviewInterviewIdRoadmapRoute =
-  AuthenticatedInterviewInterviewIdRoadmapRouteImport.update({
-    id: '/interview/$interviewId/roadmap',
-    path: '/interview/$interviewId/roadmap',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedInterviewInterviewIdReportRoute =
   AuthenticatedInterviewInterviewIdReportRouteImport.update({
     id: '/interview/$interviewId/report',
     path: '/interview/$interviewId/report',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInterviewInterviewIdRoadmapRoute =
+  AuthenticatedInterviewInterviewIdRoadmapRouteImport.update({
+    id: '/interview/$interviewId/roadmap',
+    path: '/interview/$interviewId/roadmap',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
+  '/prepare': typeof AuthenticatedPrepareRoute
   '/resume': typeof AuthenticatedResumeRoute
   '/interview/new': typeof AuthenticatedInterviewNewRoute
   '/interview/$interviewId/report': typeof AuthenticatedInterviewInterviewIdReportRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/history': typeof AuthenticatedHistoryRoute
+  '/prepare': typeof AuthenticatedPrepareRoute
   '/resume': typeof AuthenticatedResumeRoute
   '/interview/new': typeof AuthenticatedInterviewNewRoute
   '/interview/$interviewId/report': typeof AuthenticatedInterviewInterviewIdReportRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
+  '/_authenticated/prepare': typeof AuthenticatedPrepareRoute
   '/_authenticated/resume': typeof AuthenticatedResumeRoute
   '/_authenticated/interview/new': typeof AuthenticatedInterviewNewRoute
   '/_authenticated/interview/$interviewId/report': typeof AuthenticatedInterviewInterviewIdReportRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/history'
+    | '/prepare'
     | '/resume'
     | '/interview/new'
     | '/interview/$interviewId/report'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/history'
+    | '/prepare'
     | '/resume'
     | '/interview/new'
     | '/interview/$interviewId/report'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/dashboard'
     | '/_authenticated/history'
+    | '/_authenticated/prepare'
     | '/_authenticated/resume'
     | '/_authenticated/interview/new'
     | '/_authenticated/interview/$interviewId/report'
@@ -154,11 +166,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -168,18 +180,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/resume': {
-      id: '/_authenticated/resume'
-      path: '/resume'
-      fullPath: '/resume'
-      preLoaderRoute: typeof AuthenticatedResumeRouteImport
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/history': {
@@ -189,11 +201,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHistoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+    '/_authenticated/prepare': {
+      id: '/_authenticated/prepare'
+      path: '/prepare'
+      fullPath: '/prepare'
+      preLoaderRoute: typeof AuthenticatedPrepareRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/resume': {
+      id: '/_authenticated/resume'
+      path: '/resume'
+      fullPath: '/resume'
+      preLoaderRoute: typeof AuthenticatedResumeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/interview/new': {
@@ -210,18 +229,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedInterviewInterviewIdIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/interview/$interviewId/roadmap': {
-      id: '/_authenticated/interview/$interviewId/roadmap'
-      path: '/interview/$interviewId/roadmap'
-      fullPath: '/interview/$interviewId/roadmap'
-      preLoaderRoute: typeof AuthenticatedInterviewInterviewIdRoadmapRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/interview/$interviewId/report': {
       id: '/_authenticated/interview/$interviewId/report'
       path: '/interview/$interviewId/report'
       fullPath: '/interview/$interviewId/report'
       preLoaderRoute: typeof AuthenticatedInterviewInterviewIdReportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/interview/$interviewId/roadmap': {
+      id: '/_authenticated/interview/$interviewId/roadmap'
+      path: '/interview/$interviewId/roadmap'
+      fullPath: '/interview/$interviewId/roadmap'
+      preLoaderRoute: typeof AuthenticatedInterviewInterviewIdRoadmapRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -230,6 +249,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
+  AuthenticatedPrepareRoute: typeof AuthenticatedPrepareRoute
   AuthenticatedResumeRoute: typeof AuthenticatedResumeRoute
   AuthenticatedInterviewNewRoute: typeof AuthenticatedInterviewNewRoute
   AuthenticatedInterviewInterviewIdReportRoute: typeof AuthenticatedInterviewInterviewIdReportRoute
@@ -240,6 +260,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
+  AuthenticatedPrepareRoute: AuthenticatedPrepareRoute,
   AuthenticatedResumeRoute: AuthenticatedResumeRoute,
   AuthenticatedInterviewNewRoute: AuthenticatedInterviewNewRoute,
   AuthenticatedInterviewInterviewIdReportRoute:
@@ -261,3 +282,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

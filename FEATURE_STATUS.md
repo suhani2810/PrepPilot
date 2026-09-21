@@ -25,6 +25,14 @@ Anything not on the "Implemented" list is not shipped.
 | Provider-agnostic AI adapter          | `src/lib/ai.server.ts` (Groq primary, OpenRouter fallback)                                |
 | Full RLS + storage policies           | `supabase/migrations/`                                                                    |
 | Light/dark theme                      | `src/styles.css`                                                                          |
+| Study PDF → grounded preparation      | `prepare.tsx`, `preparation.functions.ts`, private `study-materials` bucket               |
+| Page citations + concept map          | `pdf.server.ts`, `documents`, `document_concepts`, `technical_questions`                  |
+| Technical answer evaluation           | `submitTechnicalAnswer`, `practice_sessions`, `practice_attempts`                         |
+| Job-description skill mapping         | `analyzeJobDescription`, `job_descriptions`                                               |
+| Reviewed DSA problem library          | `coding_problems` seed in the preparation migration                                       |
+| Secure code-runner adapter            | `submitCodingSolution` (requires an external isolated runner)                             |
+| Feedback and pilot analytics          | `feedback`, `usage_events`                                                                |
+| Combined readiness estimate           | Technical + coding + interview signals in Preparation Studio                              |
 
 ### Readiness score methodology
 
@@ -44,6 +52,10 @@ alone.
 - Roadmap study links are LLM-generated titles, not curated URLs.
 - Report empty-states exist but could show richer guidance when zero answers
   were submitted.
+- PDF processing persists status and retryable failures, but currently runs in
+  the authenticated server request rather than a durable external job queue.
+- The code-runner client and fail-closed controls are implemented; actual code
+  execution requires a separately deployed sandbox provider.
 
 ## 🚫 Not implemented / future scope
 
@@ -53,6 +65,8 @@ alone.
   server function with `{ interviewId, answer: string }`. No change to
   `submitAnswer`'s contract, evaluation logic, or persistence is required.
 - Live collaborative coding environment.
+- OCR for scanned/image-only study documents.
+- Faculty moderation and placement-cohort dashboards.
 - Webcam-based behavior analysis.
 - Gamification / leaderboards.
 - Team / recruiter accounts.

@@ -6,10 +6,10 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-const SUPABASE_URL = "https://sfqistvphltajnflugaa.supabase.co";
+const SUPABASE_URL = "https://klwhrtyrniprkiswtlqb.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNmcWlzdHZwaGx0YWpuZmx1Z2FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NTYyNTIsImV4cCI6MjEwMDEzMjI1Mn0.pfxM6bsxcHF8Hx7WCymayZtEDOxWWM2ErKyqWF3kuK0";
-const SUPABASE_PROJECT_ID = "sfqistvphltajnflugaa";
+  "sb_publishable_b0-tbsKVy64WW00gqu7eBQ_aWZKMFZv";
+const SUPABASE_PROJECT_ID = "klwhrtyrniprkiswtlqb";
 
 export default defineConfig({
   tanstackStart: {
