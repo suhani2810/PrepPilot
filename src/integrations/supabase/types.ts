@@ -44,6 +44,217 @@ export type Database = {
         }
         Relationships: []
       }
+      coding_problems: {
+        Row: {
+          constraints: string[]
+          created_at: string
+          difficulty: string
+          examples: Json
+          explanation: string
+          hidden_tests: Json
+          id: string
+          review_status: string
+          slug: string
+          starter_code: Json
+          statement: string
+          title: string
+          topics: string[]
+        }
+        Insert: {
+          constraints?: string[]
+          created_at?: string
+          difficulty: string
+          examples?: Json
+          explanation?: string
+          hidden_tests?: Json
+          id?: string
+          review_status?: string
+          slug: string
+          starter_code?: Json
+          statement: string
+          title: string
+          topics?: string[]
+        }
+        Update: {
+          constraints?: string[]
+          created_at?: string
+          difficulty?: string
+          examples?: Json
+          explanation?: string
+          hidden_tests?: Json
+          id?: string
+          review_status?: string
+          slug?: string
+          starter_code?: Json
+          statement?: string
+          title?: string
+          topics?: string[]
+        }
+        Relationships: []
+      }
+      coding_submissions: {
+        Row: {
+          created_at: string
+          id: string
+          language: string
+          memory_kb: number | null
+          passed_tests: number
+          problem_id: string
+          result: Json
+          runtime_ms: number | null
+          score: number
+          source_code: string
+          status: string
+          total_tests: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          language: string
+          memory_kb?: number | null
+          passed_tests?: number
+          problem_id: string
+          result?: Json
+          runtime_ms?: number | null
+          score?: number
+          source_code: string
+          status: string
+          total_tests?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          language?: string
+          memory_kb?: number | null
+          passed_tests?: number
+          problem_id?: string
+          result?: Json
+          runtime_ms?: number | null
+          score?: number
+          source_code?: string
+          status?: string
+          total_tests?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coding_submissions_problem_id_fkey"
+            columns: ["problem_id"]
+            isOneToOne: false
+            referencedRelation: "coding_problems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_concepts: {
+        Row: {
+          created_at: string
+          description: string
+          difficulty: string
+          document_id: string
+          id: string
+          name: string
+          prerequisites: Json
+          related_coding_topics: Json
+          source_page: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          difficulty?: string
+          document_id: string
+          id?: string
+          name: string
+          prerequisites?: Json
+          related_coding_topics?: Json
+          source_page?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          difficulty?: string
+          document_id?: string
+          id?: string
+          name?: string
+          prerequisites?: Json
+          related_coding_topics?: Json
+          source_page?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_concepts_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          analysis: Json
+          content_hash: string | null
+          created_at: string
+          document_type: string
+          extracted_text: string | null
+          file_size: number
+          file_type: string
+          filename: string
+          id: string
+          page_count: number | null
+          processing_error: string | null
+          processing_status: string
+          storage_path: string
+          subject: string | null
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          analysis?: Json
+          content_hash?: string | null
+          created_at?: string
+          document_type?: string
+          extracted_text?: string | null
+          file_size: number
+          file_type?: string
+          filename: string
+          id?: string
+          page_count?: number | null
+          processing_error?: string | null
+          processing_status?: string
+          storage_path: string
+          subject?: string | null
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          analysis?: Json
+          content_hash?: string | null
+          created_at?: string
+          document_type?: string
+          extracted_text?: string | null
+          file_size?: number
+          file_type?: string
+          filename?: string
+          id?: string
+          page_count?: number | null
+          processing_error?: string | null
+          processing_status?: string
+          storage_path?: string
+          subject?: string | null
+          updated_at?: string
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
       evaluations: {
         Row: {
           clarity: number | null
@@ -112,6 +323,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      feedback: {
+        Row: {
+          created_at: string
+          id: string
+          rating: string
+          reason: string | null
+          target_id: string
+          target_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rating: string
+          reason?: string | null
+          target_id: string
+          target_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rating?: string
+          reason?: string | null
+          target_id?: string
+          target_type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       interview_messages: {
         Row: {
@@ -225,6 +466,39 @@ export type Database = {
           },
         ]
       }
+      job_descriptions: {
+        Row: {
+          analysis: Json
+          company: string | null
+          created_at: string
+          id: string
+          raw_text: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis?: Json
+          company?: string | null
+          created_at?: string
+          id?: string
+          raw_text: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis?: Json
+          company?: string | null
+          created_at?: string
+          id?: string
+          raw_text?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       learning_roadmaps: {
         Row: {
           content: Json
@@ -259,6 +533,96 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      practice_attempts: {
+        Row: {
+          answer_text: string
+          created_at: string
+          dimension_scores: Json
+          feedback: Json
+          id: string
+          question_id: string
+          score: number
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          answer_text: string
+          created_at?: string
+          dimension_scores?: Json
+          feedback?: Json
+          id?: string
+          question_id: string
+          score: number
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          answer_text?: string
+          created_at?: string
+          dimension_scores?: Json
+          feedback?: Json
+          id?: string
+          question_id?: string
+          score?: number
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_attempts_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "technical_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_attempts_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "practice_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practice_sessions: {
+        Row: {
+          completed_at: string | null
+          id: string
+          score: number | null
+          session_type: string
+          source_id: string | null
+          source_type: string
+          started_at: string
+          status: string
+          user_id: string
+          weak_areas: Json
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          score?: number | null
+          session_type?: string
+          source_id?: string | null
+          source_type: string
+          started_at?: string
+          status?: string
+          user_id: string
+          weak_areas?: Json
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          score?: number | null
+          session_type?: string
+          source_id?: string | null
+          source_type?: string
+          started_at?: string
+          status?: string
+          user_id?: string
+          weak_areas?: Json
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -302,6 +666,87 @@ export type Database = {
           request_count?: number
           user_id?: string
           window_started_at?: string
+        }
+        Relationships: []
+      }
+      technical_questions: {
+        Row: {
+          created_at: string
+          difficulty: number
+          document_id: string | null
+          evaluation_criteria: Json
+          expected_answer: string
+          id: string
+          job_description_id: string | null
+          question_text: string
+          source_reference: Json
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty?: number
+          document_id?: string | null
+          evaluation_criteria?: Json
+          expected_answer?: string
+          id?: string
+          job_description_id?: string | null
+          question_text: string
+          source_reference?: Json
+          topic: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: number
+          document_id?: string | null
+          evaluation_criteria?: Json
+          expected_answer?: string
+          id?: string
+          job_description_id?: string | null
+          question_text?: string
+          source_reference?: Json
+          topic?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technical_questions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "technical_questions_job_description_id_fkey"
+            columns: ["job_description_id"]
+            isOneToOne: false
+            referencedRelation: "job_descriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      usage_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: number
+          properties: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: never
+          properties?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: never
+          properties?: Json
+          user_id?: string
         }
         Relationships: []
       }
