@@ -28,6 +28,10 @@ PrepPilot_Team_Phantom*
 .env.development
 .env.production
 
+# Google service-account credentials — server-side secret, never commit.
+credentials.json
+credential.json
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

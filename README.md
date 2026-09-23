@@ -102,23 +102,32 @@ The dev server listens on the port Vite picks (default `5173`).
 
 Copy `.env.example` to `.env` and fill in:
 
-| Variable                        | Where            | Required | Purpose                                                 |
-| ------------------------------- | ---------------- | -------- | ------------------------------------------------------- |
-| `VITE_SUPABASE_URL`             | browser + server | yes      | Supabase project URL for the browser client             |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | browser + server | yes      | Supabase anon/publishable key for the browser client    |
-| `VITE_SUPABASE_PROJECT_ID`      | browser          | yes      | Supabase project ref                                    |
-| `SUPABASE_URL`                  | server           | yes      | Same URL, used by SSR + server functions                |
-| `SUPABASE_PUBLISHABLE_KEY`      | server           | yes      | Same anon key, used by SSR + server functions           |
-| `SUPABASE_PROJECT_ID`           | server           | yes      | Same project ref                                        |
-| `SUPABASE_SERVICE_ROLE_KEY`     | server           | yes      | Trusted interview writes; never expose to the browser   |
-| `GROQ_API_KEY`                  | server           | yes\*    | Primary LLM provider; required for voice transcription  |
-| `OPENROUTER_API_KEY`            | server           | yes\*    | Fallback LLM provider                                   |
-| `GROQ_MODEL`                    | server           | no       | Override default Groq model (`openai/gpt-oss-120b`)     |
-| `GROQ_TRANSCRIPTION_MODEL`      | server           | no       | Override the Groq voice transcription model             |
-| `OPENROUTER_MODEL`              | server           | no       | Override default OpenRouter model                       |
-| `AI_PROVIDER`                   | server           | no       | `groq` (default) or `openrouter`                        |
-| `CODE_RUNNER_URL`               | server           | coding   | HTTPS endpoint for isolated, network-disabled execution |
-| `CODE_RUNNER_API_KEY`           | server           | coding   | Bearer credential for the isolated runner               |
+| Variable                             | Where            | Required | Purpose                                                    |
+| ------------------------------------ | ---------------- | -------- | ---------------------------------------------------------- |
+| `VITE_SUPABASE_URL`                  | browser + server | yes      | Supabase project URL for the browser client                |
+| `VITE_SUPABASE_PUBLISHABLE_KEY`      | browser + server | yes      | Supabase anon/publishable key for the browser client       |
+| `VITE_SUPABASE_PROJECT_ID`           | browser          | yes      | Supabase project ref                                       |
+| `SUPABASE_URL`                       | server           | yes      | Same URL, used by SSR + server functions                   |
+| `SUPABASE_PUBLISHABLE_KEY`           | server           | yes      | Same anon key, used by SSR + server functions              |
+| `SUPABASE_PROJECT_ID`                | server           | yes      | Same project ref                                           |
+| `SUPABASE_SERVICE_ROLE_KEY`          | server           | yes      | Trusted interview writes; never expose to the browser      |
+| `GROQ_API_KEY`                       | server           | yes\*    | Primary LLM provider; required for voice transcription     |
+| `OPENROUTER_API_KEY`                 | server           | yes\*    | Fallback LLM provider                                      |
+| `GROQ_MODEL`                         | server           | no       | Override default Groq model (`openai/gpt-oss-120b`)        |
+| `GROQ_TRANSCRIPTION_MODEL`           | server           | no       | Override the Groq voice transcription model                |
+| `OPENROUTER_MODEL`                   | server           | no       | Override default OpenRouter model                          |
+| `AI_PROVIDER`                        | server           | no       | `groq` (default) or `openrouter`                           |
+| `GOOGLE_SHEET_ID`                    | server           | coding   | Google Sheet containing the coding-question catalog        |
+| `GOOGLE_SHEET_GID`                   | server           | no       | Sheet tab ID (`0` by default)                              |
+| `GOOGLE_SERVICE_ACCOUNT_JSON_BASE64` | server           | deploy   | Base64 service-account JSON for deployed environments      |
+| `CODE_RUNNER_PROVIDER`               | server           | no       | `piston` (free MVP default) or a custom runner             |
+| `CODE_RUNNER_URL`                    | server           | no       | Piston execute endpoint or custom runner endpoint          |
+| `CODE_RUNNER_API_KEY`                | server           | custom   | Bearer key required only by an authenticated custom runner |
+
+The coding library currently exposes JavaScript, Python, C, C++, and C#.
+The built-in Piston adapter maps these language identifiers to isolated
+runtimes and needs no API key. Piston is intended for the MVP; use a private
+runner before sending confidential source code or test cases.
 
 \* At least one AI provider key is required. Voice Interview always requires
 `GROQ_API_KEY`; the OpenRouter fallback only covers text generation.
@@ -179,14 +188,17 @@ npm run lint       # eslint
 
 ## Isolated code-runner contract
 
-`POST CODE_RUNNER_URL` receives a bearer token and JSON containing `problem`,
-`language`, `sourceCode`, `tests`, and limits for time, memory, network, and
-filesystem access. It must execute each submission in a disposable sandbox and
-return JSON with `status`, `passedTests`, `totalTests`, `runtimeMs`, `memoryKb`,
-`stdout`, `stderr`, and optional per-test `results`. Supported statuses are
-`accepted`, `wrong_answer`, `compile_error`, `runtime_error`, and `timeout`.
-PrepPilot rejects non-HTTPS remote runner URLs and never falls back to executing
-untrusted code in the application process.
+With `CODE_RUNNER_PROVIDER=piston`, PrepPilot builds a server-side test harness
+and calls Piston's `/api/v2/piston/execute` endpoint. Hidden tests are never sent
+to the browser, though both the submitted source and tests are necessarily sent
+to the configured Piston service.
+
+For `CODE_RUNNER_PROVIDER=custom`, `POST CODE_RUNNER_URL` receives a bearer
+token and JSON containing `problem`, `language`, `sourceCode`, `tests`, and
+execution limits. It must return `status`, `passedTests`, `totalTests`,
+`runtimeMs`, `memoryKb`, `stdout`, `stderr`, and optional per-test `results`.
+PrepPilot rejects non-HTTPS remote URLs and never executes candidate code in the
+application process.
 
 ## Deployment
 

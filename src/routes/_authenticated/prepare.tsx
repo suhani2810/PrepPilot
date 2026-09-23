@@ -35,6 +35,7 @@ import {
   Code2,
   FileText,
   Gauge,
+  ExternalLink,
   Loader2,
   MessageSquareText,
   RefreshCw,
@@ -126,6 +127,11 @@ type CodingProblem = {
   examples: { input: string; output: string }[];
   starter_code: Record<string, string>;
   explanation: string;
+  source?: "internal" | "google_sheet";
+  problem_url?: string | null;
+  solution_url?: string | null;
+  companies?: string[];
+  can_submit?: boolean;
 };
 
 type PreparationData = {
@@ -134,6 +140,15 @@ type PreparationData = {
   questions: QuestionRow[];
   jobs: JobRow[];
   problems: CodingProblem[];
+  codingContext: {
+    hasReadyMaterial: boolean;
+    materialHasCodingContent: boolean;
+    materialTopics: string[];
+    recommendedProblemIds: string[];
+    availableTopics: string[];
+  };
+  codeRunnerConfigured: boolean;
+  codeRunnerProvider: string;
   attempts: { id: string; question_id: string; score: number; feedback: unknown }[];
   submissions: {
     id: string;
@@ -484,7 +499,7 @@ function MaterialsPanel({
           <>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <SectionEyebrow>Grounded orientation</SectionEyebrow>
+                <SectionEyebrow>PDF summary</SectionEyebrow>
                 <h2 className="mt-2 font-display text-2xl font-semibold">{selected.filename}</h2>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {selected.subject} · {selected.visibility}
@@ -552,7 +567,7 @@ function MaterialsPanel({
               </div>
             )}
             <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4">
-              <p className="text-xs text-muted-foreground">Was this grounded summary useful?</p>
+              <p className="text-xs text-muted-foreground">Was this PDF summary useful?</p>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => rate("helpful")}>
                   Helpful
@@ -582,10 +597,14 @@ function TechnicalPanel({
     data?.documents[0]?.id ?? data?.jobs[0]?.id ?? "all",
   );
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [results, setResults] = useState<
-    Record<string, { score: number; feedback: string; nextAction: string; weaknesses: string[] }>
-  >({});
+  const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null);
+  const [roundComplete, setRoundComplete] = useState(false);
+  const [lastEvaluation, setLastEvaluation] = useState<{
+    question: QuestionRow;
+    result: { score: number; feedback: string; nextAction: string; weaknesses: string[] };
+  } | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [questionOrder, setQuestionOrder] = useState<string[]>([]);
   const questions = useMemo(
     () =>
       data?.questions.filter(
@@ -596,6 +615,39 @@ function TechnicalPanel({
       ) ?? [],
     [data, source],
   );
+  const orderedQuestions = useMemo(() => {
+    if (!questionOrder.length) return questions;
+    const byId = new Map(questions.map((question) => [question.id, question]));
+    return questionOrder
+      .map((id) => byId.get(id))
+      .filter((question): question is QuestionRow => !!question);
+  }, [questionOrder, questions]);
+  const activeIndex = orderedQuestions.findIndex((question) => question.id === activeQuestionId);
+  const activeQuestion = activeIndex >= 0 ? orderedQuestions[activeIndex] : null;
+  const activeDocument = activeQuestion?.document_id
+    ? data?.documents.find((document) => document.id === activeQuestion.document_id)
+    : null;
+
+  useEffect(() => {
+    setActiveQuestionId(null);
+    setRoundComplete(false);
+    setLastEvaluation(null);
+    setQuestionOrder([]);
+  }, [source]);
+
+  useEffect(() => {
+    if (questions.length && questionOrder.length !== questions.length) {
+      setQuestionOrder(
+        [...questions].sort(() => Math.random() - 0.5).map((question) => question.id),
+      );
+    }
+  }, [questionOrder.length, questions]);
+
+  useEffect(() => {
+    if (!roundComplete && orderedQuestions.length && !activeQuestion) {
+      setActiveQuestionId(orderedQuestions[0].id);
+    }
+  }, [activeQuestion, orderedQuestions, roundComplete]);
 
   const evaluate = async (question: QuestionRow) => {
     const answer = answers[question.id]?.trim();
@@ -603,8 +655,17 @@ function TechnicalPanel({
     setBusyId(question.id);
     try {
       const result = await submit({ data: { questionId: question.id, answer } });
-      setResults((current) => ({ ...current, [question.id]: result }));
-      toast.success("Answer evaluated");
+      setLastEvaluation({ question, result });
+      const currentIndex = orderedQuestions.findIndex((item) => item.id === question.id);
+      const nextQuestion = orderedQuestions[currentIndex + 1];
+      if (nextQuestion) {
+        setActiveQuestionId(nextQuestion.id);
+        toast.success(`Answer evaluated · Question ${currentIndex + 2} is ready`);
+      } else {
+        setActiveQuestionId(null);
+        setRoundComplete(true);
+        toast.success("Technical round completed");
+      }
       await onChanged();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Evaluation failed");
@@ -618,9 +679,9 @@ function TechnicalPanel({
       <Surface elevated className="flex flex-wrap items-center justify-between gap-4 p-5">
         <div>
           <SectionEyebrow>Adaptive technical round</SectionEyebrow>
-          <h2 className="mt-2 font-display text-2xl font-semibold">Grounded questions</h2>
+          <h2 className="mt-2 font-display text-2xl font-semibold">Technical questions</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Every material-based question carries a source excerpt and page.
+            PDF-based questions show the page citation used to create each question.
           </p>
         </div>
         <div className="w-full sm:w-72">
@@ -645,92 +706,138 @@ function TechnicalPanel({
           </Select>
         </div>
       </Surface>
-      {!questions.length ? (
+      {lastEvaluation && (
+        <Surface className="border-primary/20 bg-primary/5 p-4 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-widest text-primary">
+                Previous answer evaluated
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {lastEvaluation.question.question_text}
+              </p>
+            </div>
+            <span className="font-display text-2xl font-semibold">
+              {Math.round(lastEvaluation.result.score * 10)}%
+            </span>
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">{lastEvaluation.result.feedback}</p>
+          <p className="mt-2 text-xs">
+            <span className="font-medium">Next action:</span> {lastEvaluation.result.nextAction}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              {lastEvaluation.result.weaknesses.map((item) => (
+                <Badge key={item} variant="outline">
+                  {item}
+                </Badge>
+              ))}
+            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={async () => {
+                await feedbackFn({
+                  data: {
+                    targetType: "evaluation",
+                    targetId: lastEvaluation.question.id,
+                    rating: "helpful",
+                  },
+                });
+                toast.success("Feedback saved");
+              }}
+            >
+              Helpful
+            </Button>
+          </div>
+        </Surface>
+      )}
+      {!orderedQuestions.length ? (
         <Surface className="p-8">
           <EmptyState
             icon={<Brain className="h-5 w-5" />}
             title="No generated questions"
-            description="Process study material or a job description first."
+            description={
+              data?.documents.some((document) => document.processing_status === "failed")
+                ? `The PDF could not be processed: ${data.documents.find((document) => document.processing_status === "failed")?.processing_error ?? "unknown processing error"}`
+                : "No usable technical questions were generated yet. Re-process the PDF after checking that an AI provider is configured."
+            }
           />
         </Surface>
-      ) : (
-        questions.map((question, index) => {
-          const result = results[question.id];
-          return (
-            <Surface key={question.id} className="p-5 sm:p-6">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="secondary">Question {index + 1}</Badge>
-                <Badge variant="outline">{question.topic}</Badge>
-                <span className="text-xs text-muted-foreground">
-                  Difficulty {question.difficulty}/5
-                </span>
-              </div>
-              <h3 className="mt-4 font-display text-xl font-semibold">{question.question_text}</h3>
-              {question.source_reference?.page && (
-                <p className="mt-3 rounded-lg border border-border/60 bg-secondary/30 p-3 text-xs leading-5 text-muted-foreground">
-                  <span className="font-medium text-primary">
-                    Source page {question.source_reference.page}
-                  </span>{" "}
-                  · {question.source_reference.excerpt}
-                </p>
-              )}
-              <Textarea
-                className="mt-4 min-h-32"
-                placeholder="Explain your reasoning clearly…"
-                value={answers[question.id] ?? ""}
-                onChange={(event) =>
-                  setAnswers((current) => ({ ...current, [question.id]: event.target.value }))
-                }
-              />
-              <div className="mt-3 flex justify-end">
-                <Button onClick={() => evaluate(question)} disabled={busyId === question.id}>
-                  {busyId === question.id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Evaluate answer
-                </Button>
-              </div>
-              {result && (
-                <div className="mt-5 rounded-xl border border-primary/20 bg-primary/5 p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium">Evaluation</p>
-                    <span className="font-display text-2xl font-semibold">
-                      {Math.round(result.score * 10)}%
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">{result.feedback}</p>
-                  <p className="mt-3 text-xs">
-                    <span className="font-medium">Next action:</span> {result.nextAction}
-                  </p>
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap gap-2">
-                      {result.weaknesses.map((item) => (
-                        <Badge key={item} variant="outline">
-                          {item}
-                        </Badge>
-                      ))}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={async () => {
-                        await feedbackFn({
-                          data: {
-                            targetType: "evaluation",
-                            targetId: question.id,
-                            rating: "helpful",
-                          },
-                        });
-                        toast.success("Feedback saved");
-                      }}
-                    >
-                      Helpful
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </Surface>
-          );
-        })
-      )}
+      ) : roundComplete ? (
+        <Surface className="p-8">
+          <EmptyState
+            icon={<CheckCircle2 className="h-5 w-5" />}
+            title="Technical round completed"
+            description={`You answered all ${orderedQuestions.length} questions from this source.`}
+          />
+          <div className="mt-5 flex justify-center">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAnswers({});
+                setLastEvaluation(null);
+                setRoundComplete(false);
+                setActiveQuestionId(orderedQuestions[0]?.id ?? null);
+              }}
+            >
+              Practice these questions again
+            </Button>
+          </div>
+        </Surface>
+      ) : activeQuestion ? (
+        <Surface key={activeQuestion.id} className="p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="secondary">
+              Question {activeIndex + 1} of {orderedQuestions.length}
+            </Badge>
+            <Badge variant="outline">{activeQuestion.topic}</Badge>
+            <span className="text-xs text-muted-foreground">
+              Difficulty {activeQuestion.difficulty}/5
+            </span>
+          </div>
+          <Progress
+            value={((activeIndex + 1) / orderedQuestions.length) * 100}
+            className="mt-4 h-1.5"
+          />
+          <h3 className="mt-4 font-display text-xl font-semibold">
+            {activeQuestion.question_text}
+          </h3>
+          {activeQuestion.source_reference?.page && (
+            <div className="mt-4 rounded-lg border border-border/60 bg-secondary/30 p-4">
+              <p className="text-xs font-medium uppercase tracking-widest text-primary">
+                Source citation
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {activeDocument ? `${activeDocument.filename} · ` : "Material source · "}Page{" "}
+                {activeQuestion.source_reference.page}
+              </p>
+            </div>
+          )}
+          <Textarea
+            className="mt-4 min-h-32"
+            placeholder="Explain your reasoning clearly…"
+            value={answers[activeQuestion.id] ?? ""}
+            onChange={(event) =>
+              setAnswers((current) => ({
+                ...current,
+                [activeQuestion.id]: event.target.value,
+              }))
+            }
+          />
+          <div className="mt-3 flex justify-end">
+            <Button
+              onClick={() => evaluate(activeQuestion)}
+              disabled={busyId === activeQuestion.id}
+            >
+              {busyId === activeQuestion.id && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {activeIndex + 1 === orderedQuestions.length
+                ? "Evaluate and finish"
+                : "Evaluate and continue"}
+            </Button>
+          </div>
+        </Surface>
+      ) : null}
     </div>
   );
 }
@@ -743,10 +850,32 @@ function CodingPanel({
   onChanged: () => Promise<void>;
 }) {
   const submit = useServerFn(submitCodingSolution);
-  const [problemId, setProblemId] = useState(data?.problems[0]?.id ?? "");
+  const [problemId, setProblemId] = useState("");
   const [language, setLanguage] = useState("javascript");
-  const selected = data?.problems.find((problem) => problem.id === problemId) ?? data?.problems[0];
-  const [code, setCode] = useState(selected?.starter_code?.javascript ?? "");
+  const [unrelatedTopic, setUnrelatedTopic] = useState("");
+  const [practiceUnrelated, setPracticeUnrelated] = useState(false);
+  const allProblems = useMemo(() => data?.problems ?? [], [data?.problems]);
+  const codingContext = data?.codingContext;
+  const recommendedProblems = useMemo(() => {
+    const recommendedIds = new Set(codingContext?.recommendedProblemIds ?? []);
+    return allProblems.filter((problem) => recommendedIds.has(problem.id));
+  }, [allProblems, codingContext?.recommendedProblemIds]);
+  const visibleProblems = useMemo(() => {
+    if (codingContext?.materialHasCodingContent) {
+      return recommendedProblems.length ? recommendedProblems : allProblems;
+    }
+    if (!practiceUnrelated || !unrelatedTopic) return [];
+    return allProblems.filter((problem) => problem.topics.includes(unrelatedTopic));
+  }, [
+    allProblems,
+    codingContext?.materialHasCodingContent,
+    practiceUnrelated,
+    recommendedProblems,
+    unrelatedTopic,
+  ]);
+  const selected =
+    visibleProblems.find((problem) => problem.id === problemId) ?? visibleProblems[0];
+  const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{
     status: string;
@@ -762,8 +891,20 @@ function CodingPanel({
     if (selected) setCode(selected.starter_code?.[language] ?? "");
   }, [selected, language]);
 
+  useEffect(() => {
+    if (!unrelatedTopic && codingContext?.availableTopics[0]) {
+      setUnrelatedTopic(codingContext.availableTopics[0]);
+    }
+  }, [codingContext?.availableTopics, unrelatedTopic]);
+
+  useEffect(() => {
+    if (visibleProblems.length && !visibleProblems.some((problem) => problem.id === problemId)) {
+      setProblemId(visibleProblems[0].id);
+    }
+  }, [problemId, visibleProblems]);
+
   const run = async () => {
-    if (!selected) return;
+    if (!selected || selected.can_submit === false) return;
     setBusy(true);
     setResult(null);
     try {
@@ -777,7 +918,7 @@ function CodingPanel({
     }
   };
 
-  if (!selected)
+  if (!allProblems.length)
     return (
       <Surface className="p-8">
         <EmptyState
@@ -787,12 +928,64 @@ function CodingPanel({
         />
       </Surface>
     );
+  if (!codingContext?.materialHasCodingContent && !practiceUnrelated)
+    return (
+      <Surface elevated className="p-6 sm:p-8">
+        <SectionEyebrow>Coding practice</SectionEyebrow>
+        <h2 className="mt-2 font-display text-2xl font-semibold">
+          No coding topic was found in your material
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+          {codingContext?.hasReadyMaterial
+            ? "The uploaded material does not appear to be related to programming. Would you like to practise an unrelated reviewed coding problem?"
+            : "Upload and process study material first, or choose a topic for an unrelated reviewed coding problem."}
+        </p>
+        <div className="mt-5 flex max-w-xl flex-col gap-3 sm:flex-row">
+          <Select value={unrelatedTopic} onValueChange={setUnrelatedTopic}>
+            <SelectTrigger className="sm:flex-1">
+              <SelectValue placeholder="Choose a coding topic" />
+            </SelectTrigger>
+            <SelectContent>
+              {(codingContext?.availableTopics ?? []).map((topic) => (
+                <SelectItem key={topic} value={topic}>
+                  {topic}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button
+            disabled={!unrelatedTopic}
+            onClick={() => {
+              const first = allProblems.find((problem) => problem.topics.includes(unrelatedTopic));
+              if (first) setProblemId(first.id);
+              setPracticeUnrelated(true);
+            }}
+          >
+            Practice this topic
+          </Button>
+        </div>
+      </Surface>
+    );
+  if (!selected)
+    return (
+      <Surface className="p-8">
+        <EmptyState
+          icon={<Code2 className="h-5 w-5" />}
+          title="No matching coding problem"
+          description="Choose another topic or add a reviewed problem for this material."
+        />
+      </Surface>
+    );
   return (
     <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
       <Surface elevated className="p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <SectionEyebrow>Reviewed problem library</SectionEyebrow>
+            <SectionEyebrow>
+              {selected.source === "google_sheet"
+                ? "Connected Google Sheet"
+                : "Reviewed problem library"}
+            </SectionEyebrow>
             <h2 className="mt-2 font-display text-2xl font-semibold">{selected.title}</h2>
           </div>
           <Badge variant="outline">{selected.difficulty}</Badge>
@@ -808,14 +1001,20 @@ function CodingPanel({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {data?.problems.map((problem) => (
+            {visibleProblems.map((problem) => (
               <SelectItem key={problem.id} value={problem.id}>
                 {problem.title}
+                {problem.source === "google_sheet" ? " · Sheet" : ""}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
         <p className="mt-5 text-sm leading-6 text-muted-foreground">{selected.statement}</p>
+        {codingContext?.materialHasCodingContent && codingContext.materialTopics.length > 0 && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Recommended from your material: {codingContext.materialTopics.join(", ")}
+          </p>
+        )}
         <div className="mt-4 flex flex-wrap gap-2">
           {selected.topics.map((topic) => (
             <Badge key={topic} variant="secondary">
@@ -823,85 +1022,158 @@ function CodingPanel({
             </Badge>
           ))}
         </div>
-        <div className="mt-6">
-          <p className="text-sm font-medium">Constraints</p>
-          <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-            {selected.constraints.map((constraint) => (
-              <li key={constraint}>· {constraint}</li>
+        {selected.companies && selected.companies.length > 0 && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Companies: {selected.companies.join(", ")}
+          </p>
+        )}
+        {(selected.problem_url || selected.solution_url) && (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {selected.problem_url && (
+              <Button asChild>
+                <a href={selected.problem_url} target="_blank" rel="noreferrer">
+                  Open problem <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            )}
+            {selected.solution_url && (
+              <Button variant="outline" asChild>
+                <a href={selected.solution_url} target="_blank" rel="noreferrer">
+                  Video solution <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
+            )}
+          </div>
+        )}
+        {selected.constraints.length > 0 && (
+          <div className="mt-6">
+            <p className="text-sm font-medium">Constraints</p>
+            <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+              {selected.constraints.map((constraint) => (
+                <li key={constraint}>· {constraint}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {selected.examples.length > 0 && (
+          <div className="mt-6">
+            <p className="text-sm font-medium">Examples</p>
+            {selected.examples.map((example, index) => (
+              <pre
+                key={index}
+                className="mt-2 overflow-x-auto rounded-lg bg-secondary/50 p-3 text-xs"
+              >
+                Input: {example.input}
+                {"\n"}Output: {example.output}
+              </pre>
             ))}
-          </ul>
-        </div>
-        <div className="mt-6">
-          <p className="text-sm font-medium">Examples</p>
-          {selected.examples.map((example, index) => (
-            <pre
-              key={index}
-              className="mt-2 overflow-x-auto rounded-lg bg-secondary/50 p-3 text-xs"
-            >
-              Input: {example.input}
-              {"\n"}Output: {example.output}
-            </pre>
-          ))}
-        </div>
+          </div>
+        )}
       </Surface>
 
       <Surface elevated className="p-5 sm:p-6">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <SectionEyebrow>Isolated execution</SectionEyebrow>
-            <h2 className="mt-2 font-display text-xl font-semibold">Solution editor</h2>
-          </div>
-          <Select value={language} onValueChange={setLanguage}>
-            <SelectTrigger className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="javascript">JavaScript</SelectItem>
-              <SelectItem value="python">Python</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <Textarea
-          value={code}
-          onChange={(event) => setCode(event.target.value)}
-          spellCheck={false}
-          className="mt-4 min-h-80 font-mono text-xs leading-5"
-        />
-        <div className="mt-4 flex justify-end">
-          <Button
-            onClick={run}
-            disabled={busy || code.trim().length < 10}
-            className="bg-gradient-primary text-primary-foreground"
-          >
-            {busy ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Code2 className="mr-2 h-4 w-4" />
-            )}
-            Run hidden tests
-          </Button>
-        </div>
-        {result && (
-          <div className="mt-5 rounded-xl border border-border/60 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="font-medium">{result.status.replaceAll("_", " ")}</p>
-              <span className="font-display text-2xl font-semibold">{result.score}%</span>
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Passed {result.passedTests} of {result.totalTests} tests · {result.runtimeMs ?? "—"}{" "}
-              ms · {result.memoryKb ?? "—"} KB
+        {selected.source === "google_sheet" ? (
+          <div className="flex min-h-80 flex-col justify-center">
+            <SectionEyebrow>External practice question</SectionEyebrow>
+            <h2 className="mt-2 font-display text-xl font-semibold">
+              Solve this problem on its source platform
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              The connected sheet supplies the topic, difficulty, problem link, and solution link,
+              but it does not contain hidden test cases. Open the problem to submit against its
+              official checker. In-app execution will be enabled only after a sandboxed runner and
+              test cases are connected.
             </p>
-            {result.stderr && (
-              <pre className="mt-3 overflow-x-auto rounded-lg bg-destructive/5 p-3 text-xs text-destructive">
-                {result.stderr}
-              </pre>
+            {selected.problem_url && (
+              <Button className="mt-5 self-start" asChild>
+                <a href={selected.problem_url} target="_blank" rel="noreferrer">
+                  Open official problem <ExternalLink className="ml-2 h-4 w-4" />
+                </a>
+              </Button>
             )}
-            {result.status === "accepted" && (
-              <p className="mt-4 text-sm">
-                <span className="font-medium">Reviewed explanation:</span> {selected.explanation}
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <SectionEyebrow>Isolated execution</SectionEyebrow>
+                <h2 className="mt-2 font-display text-xl font-semibold">Solution editor</h2>
+              </div>
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="javascript">JavaScript</SelectItem>
+                  <SelectItem value="python">Python</SelectItem>
+                  <SelectItem value="c">C</SelectItem>
+                  <SelectItem value="cpp">C++</SelectItem>
+                  <SelectItem value="csharp">C#</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Textarea
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+              spellCheck={false}
+              className="mt-4 min-h-80 font-mono text-xs leading-5"
+            />
+            {data?.codeRunnerProvider === "piston" && (
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                Free MVP execution is provided by the public Piston service. Your submitted code and
+                the problem tests are sent to Piston for isolated execution. Do not include secrets
+                or personal data in your solution.
               </p>
             )}
-          </div>
+            <div className="mt-4 flex justify-end">
+              <Button
+                onClick={run}
+                disabled={
+                  busy ||
+                  code.trim().length < 10 ||
+                  !data?.codeRunnerConfigured ||
+                  selected.can_submit === false
+                }
+                className="bg-gradient-primary text-primary-foreground"
+              >
+                {busy ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Code2 className="mr-2 h-4 w-4" />
+                )}
+                Run hidden tests
+              </Button>
+            </div>
+            {!data?.codeRunnerConfigured && (
+              <p className="mt-3 text-sm text-destructive">
+                Code checking is unavailable because the isolated runner is not configured. Set the
+                server-only CODE_RUNNER_URL and CODE_RUNNER_API_KEY values, then restart PrepPilot.
+              </p>
+            )}
+            {result && (
+              <div className="mt-5 rounded-xl border border-border/60 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium">{result.status.replaceAll("_", " ")}</p>
+                  <span className="font-display text-2xl font-semibold">{result.score}%</span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Passed {result.passedTests} of {result.totalTests} tests ·{" "}
+                  {result.runtimeMs ?? "—"} ms · {result.memoryKb ?? "—"} KB
+                </p>
+                {result.stderr && (
+                  <pre className="mt-3 overflow-x-auto rounded-lg bg-destructive/5 p-3 text-xs text-destructive">
+                    {result.stderr}
+                  </pre>
+                )}
+                {result.status === "accepted" && (
+                  <p className="mt-4 text-sm">
+                    <span className="font-medium">Reviewed explanation:</span>{" "}
+                    {selected.explanation}
+                  </p>
+                )}
+              </div>
+            )}
+          </>
         )}
       </Surface>
     </div>
