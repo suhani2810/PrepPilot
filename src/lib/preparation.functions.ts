@@ -97,7 +97,7 @@ async function track(userId: string, eventName: string, properties: unknown = {}
 }
 
 async function sha256(bytes: Uint8Array): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  const digest = await crypto.subtle.digest("SHA-256", new Uint8Array(bytes));
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
@@ -898,7 +898,7 @@ export const getPreparationData = createServerFn({ method: "GET" })
     const normalizedMaterialTopics = explicitCodingTopics.map(normalizeTopic);
     let recommendedProblemIds = problemRows
       .filter((problem) =>
-        (problem.topics ?? []).some((problemTopic) => {
+        (problem.topics ?? []).some((problemTopic: unknown) => {
           const normalizedProblemTopic = normalizeTopic(String(problemTopic));
           return normalizedMaterialTopics.some(
             (materialTopic) =>
