@@ -89,7 +89,7 @@ async function getAccessToken(): Promise<string> {
   })}`;
   const key = await crypto.subtle.importKey(
     "pkcs8",
-    pemToBytes(credentials.private_key),
+    new Uint8Array(pemToBytes(credentials.private_key)),
     { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" },
     false,
     ["sign"],

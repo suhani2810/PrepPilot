@@ -898,7 +898,7 @@ export const getPreparationData = createServerFn({ method: "GET" })
     const normalizedMaterialTopics = explicitCodingTopics.map(normalizeTopic);
     let recommendedProblemIds = problemRows
       .filter((problem) =>
-        (problem.topics ?? []).some((problemTopic) => {
+        (problem.topics ?? []).some((problemTopic: unknown) => {
           const normalizedProblemTopic = normalizeTopic(String(problemTopic));
           return normalizedMaterialTopics.some(
             (materialTopic) =>
