@@ -16,22 +16,7 @@ import {
   CheckCircle2,
   Target,
   Compass,
-  Github,
-  Linkedin,
 } from "lucide-react";
-
-const creators = [
-  {
-    name: "Divyam Madan",
-    github: "https://github.com/Divyam-Madan",
-    linkedin: "https://www.linkedin.com/in/divyam-madan/",
-  },
-  {
-    name: "Suhani Mahajan",
-    github: "https://github.com/suhani2810",
-    linkedin: "https://www.linkedin.com/in/suhani-mahajan-2431b8328/",
-  },
-];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -303,44 +288,12 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border/60">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 text-xs text-muted-foreground sm:flex-row sm:items-start sm:justify-between">
+        <div className="mx-auto max-w-6xl px-6 py-10 text-xs text-muted-foreground">
           <div className="max-w-sm">
             <p className="font-display text-sm font-semibold tracking-tight text-foreground">
               PrepPilot
             </p>
             <p className="mt-1 text-muted-foreground">From Resume to Ready.</p>
-          </div>
-          <div className="sm:text-right">
-            <p className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground/80">
-              Built by
-            </p>
-            <ul className="mt-2 space-y-1.5">
-              {creators.map((c) => (
-                <li key={c.name} className="flex items-center gap-2 sm:justify-end">
-                  <span className="text-foreground/90">{c.name}</span>
-                  <a
-                    href={c.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${c.name} on GitHub`}
-                    title={`${c.name} on GitHub`}
-                    className="text-muted-foreground transition hover:text-primary"
-                  >
-                    <Github className="h-3.5 w-3.5" />
-                  </a>
-                  <a
-                    href={c.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${c.name} on LinkedIn`}
-                    title={`${c.name} on LinkedIn`}
-                    className="text-muted-foreground transition hover:text-primary"
-                  >
-                    <Linkedin className="h-3.5 w-3.5" />
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
         <div className="border-t border-border/40">

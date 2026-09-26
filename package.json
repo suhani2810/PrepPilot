@@ -1,7 +1,6 @@
 {
   "name": "preppilot",
   "description": "PrepPilot — AI-powered adaptive mock interview platform. From Resume to Ready.",
-  "author": "Divyam Madan & Suhani Mahajan",
   "private": true,
   "sideEffects": false,
   "type": "module",
